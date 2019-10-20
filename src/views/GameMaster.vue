@@ -1,46 +1,62 @@
 <template>
   <v-container flex>
-    <v-row dense>
-      <v-card tile width="100%">
-        <v-card-title>
-          <v-row>
-            <v-col cols="12" md="6">
-              <h1>Мои игры</h1>
-            </v-col>
-            <v-col cols="12" md="6"></v-col>
-          </v-row>
-        </v-card-title>
-        <v-divider />
-        <v-row>
-          <v-col cols="12" md="6" sm="12">
-            <v-card outlined max-height="400" class="mx-1 fill-height overflow-y-auto">
-              <v-list>
-                <v-list-item-group v-model="gameselected" color="indigo">
-                  <v-list-item v-for="(game, i) in games" :key="i">
-                    <v-list-item-icon>
-                      <v-icon>mdi-dice-3</v-icon>
-                    </v-list-item-icon>
-                    <v-list-item-content>
-                      <v-row justify="center" align="center">
-                        <v-col cols="6" justify-self="center">
-                          <v-list-item-title v-text="game.title"></v-list-item-title>
-                          <v-list-item-subtitle v-text="game.master"></v-list-item-subtitle>
-                        </v-col>
-                        <v-col cols="6">
-                          <v-list-item-title>Дата последней игры:</v-list-item-title>
-                          <v-list-item-subtitle>{game.lastBatch}</v-list-item-subtitle>
-                        </v-col>
-                      </v-row>
-                    </v-list-item-content>
-                  </v-list-item>
-                </v-list-item-group>
-              </v-list>
-            </v-card>
-          </v-col>
-          <v-col cols="auto">
-            <v-card outlined max-height="400" class="mx-1 fill-height full-width"></v-card>
-          </v-col>
-        </v-row>
+    <v-row>
+      <v-card tile>
+        <v-card-title>Мои игры</v-card-title>
+        <v-card-actions class="px-6">
+          <v-text-field
+            class="mr-3"
+            placeholder="поиск по играм"
+            append-icon="mdi-file-document-box-search"
+          ></v-text-field>
+          <v-switch class="mr-3" v-model="myGames"  :disabled="notFull ? true : false " inset label="Мои игры"></v-switch>
+          <v-switch class="mr-3" v-model="notFull" :disabled="myGames ? true : false" inset label="Не полные"></v-switch>
+        </v-card-actions>
+        <v-list max-height="500" class="overflow-y-auto">
+          <v-list-item-group v-model="gameselected" color="green">
+            <v-list-item v-for="(game, i) in games" :key="i">
+              <v-list-item-content>
+                <v-row dense>
+                  <v-col md="3" class="hidden-md-and-down">
+                    <v-img :src="game.img"></v-img>
+                  </v-col>
+                  <v-col md="4" class="block border-black">
+                    <v-row>
+                      <v-col md="12">
+                        <v-list-item-title v-text="game.title"></v-list-item-title>
+                        <v-list-item-subtitle v-text="game.master"></v-list-item-subtitle>
+                        <v-list-item-subtitle
+                          class="text-wrap"
+                          v-text="'Дата последней игры: '+ game.lastBatch"
+                        ></v-list-item-subtitle>
+                        <v-img
+                          max-height="300"
+                          :src="game.img"
+                          class="game-picture hidden-md-and-up"
+                          :lazy-src="game.img"
+                        ></v-img>
+                      </v-col>
+                      <v-col sm="6" md="12">
+                        <v-chip class="font-weight-bold" color="indigo" text-color="white">
+                          <v-avatar class="ml-1" left>
+                            <v-icon>mdi-account-group</v-icon>
+                          </v-avatar>
+                          {{game.maxParty}}
+                        </v-chip>
+                      </v-col>
+                    </v-row>
+                  </v-col>
+                  <v-col md="5">
+                    <v-card-text>{{game.description}}</v-card-text>
+                    <div class="mr-1 text-wrap">
+                      <p></p>
+                    </div>
+                  </v-col>
+                </v-row>
+              </v-list-item-content>
+            </v-list-item>
+          </v-list-item-group>
+        </v-list>
       </v-card>
     </v-row>
     <v-row justify="center">
@@ -94,6 +110,8 @@ export default {
   name: "gamemaster",
   data: function() {
     return {
+      myGames: true,
+      notFull: false,
       gameselected: "",
       games: [
         {
@@ -102,8 +120,11 @@ export default {
           img:
             "https://img2.goodfon.com/wallpaper/nbig/0/ea/call-of-juarez-bound-in.jpg",
           master: "Николай Машуков",
+          description:
+            "Lorem ipsum dolor sit amet consectetur adipisicing elit. Sed placeat quas iusto illum voluptatibus deleniti laudantium quasi unde, excepturi velit nemo minima cupiditate expedita facere. Nemo assumenda eos consectetur iure.",
           lastBatch: new Date(),
           nextBatch: new Date(),
+          maxParty: 4,
           party: [
             {
               name: "",
@@ -295,5 +316,8 @@ export default {
 <style lang="css" scoped>
 .rounded-card {
   border-radius: 50px;
+}
+.game-picture {
+  background: no-repeat;
 }
 </style>
