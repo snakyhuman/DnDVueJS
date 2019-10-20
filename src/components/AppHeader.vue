@@ -1,0 +1,117 @@
+<template>
+  <v-app-bar color="white" height="60" app>
+    <v-app-bar-nav-icon color="primary" to="/home">
+      <v-icon>mdi-church</v-icon>
+    </v-app-bar-nav-icon>
+    <v-toolbar-title>ST.NIKOLAY</v-toolbar-title>
+    <v-spacer></v-spacer>
+    <v-app-bar-nav-icon to="/game" class="mx-1" icon color="success" x-large>
+      <v-icon>mdi-dice-6</v-icon>
+    </v-app-bar-nav-icon>
+
+    <v-dialog v-model="signUpDialog" persistent max-width="600px" class="fill-height">
+      <template v-slot:activator="{ on }">
+        <v-app-bar-nav-icon v-on="on" class="mx-1">
+          <v-icon>mdi-account-plus</v-icon>
+        </v-app-bar-nav-icon>
+      </template>
+      <sign-up @closeDialog="signUpDialog = false"></sign-up>
+    </v-dialog>
+
+    <v-dialog v-model="logInDialog" persistent max-width="600px" class="fill-height">
+      <template v-slot:activator="{ on }">
+        <v-app-bar-nav-icon v-on="on" class="mx-1">
+          <v-icon>mdi-login</v-icon>
+        </v-app-bar-nav-icon>
+      </template>
+      <log-in @closeDialog="logInDialog = false"></log-in>
+    </v-dialog>
+
+    <v-menu bottom transition="slide-y-transition" offset-y left>
+      <template v-slot:activator="{ on }">
+        <v-app-bar-nav-icon class="mx-1" v-on="on">
+          <v-avatar dark v-on:="on">
+            <img class="align-center" src="https://cdn.vuetifyjs.com/images/john.jpg" alt="John" />
+          </v-avatar>
+        </v-app-bar-nav-icon>
+      </template>
+
+      <v-card>
+        <v-list>
+          <v-list-item>
+            <v-list-item-avatar>
+              <img src="https://cdn.vuetifyjs.com/images/john.jpg" alt="John" />
+            </v-list-item-avatar>
+
+            <v-list-item-content>
+              <v-list-item-title>John Leider</v-list-item-title>
+              <v-list-item-subtitle>Founder of Vuetify.js</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+
+        <v-divider></v-divider>
+
+        <v-list rounded>
+          <v-dialog
+            v-model="profileDialog"
+            fullscreen
+            hide-overlay
+            transition="dialog-bottom-transition"
+          >
+            <template v-slot:activator="{ on }">
+              <v-list-item @click.stop="profileDialog = true">
+                <v-icon left>mdi-account-circle</v-icon>
+                <v-list-item-title>Профиль</v-list-item-title>
+              </v-list-item>
+            </template>
+            <v-card tile>
+              <v-toolbar dark color="primary">
+                <v-btn icon dark @click="profileDialog = false">
+                  <v-icon>mdi-close</v-icon>
+                </v-btn>
+                <v-toolbar-title>Профиль</v-toolbar-title>
+                <v-spacer></v-spacer>
+                <v-toolbar-items>
+                  <v-btn dark text @click="profileDialog = false">
+                    <v-icon left>mdi-content-save</v-icon>
+                    Сохранить
+                  </v-btn>
+                </v-toolbar-items>
+              </v-toolbar>
+            </v-card>
+          </v-dialog>
+
+          <v-list-item @click.prevent>
+            <v-icon left>mdi-logout</v-icon>
+            <v-list-item-title>Выйти</v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-card>
+    </v-menu>
+  </v-app-bar>
+</template>
+
+<script>
+import SignUp from "./SignUp.vue";
+import LogIn from "./LogIn.vue";
+
+export default {
+  computed: {},
+  data: function() {
+    return {
+      draver: false,
+      signUpDialog: false,
+      logInDialog: false,
+      profileDialog: false
+    };
+  },
+  components: {
+    SignUp,
+    LogIn
+  }
+};
+</script>
+
+<style lang="css" scoped>
+</style>
