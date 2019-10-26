@@ -4,13 +4,53 @@
       <v-card tile>
         <v-card-title>Мои игры</v-card-title>
         <v-card-actions class="px-6">
-          <v-text-field
-            class="mr-3"
-            placeholder="поиск по играм"
-            append-icon="mdi-file-document-box-search"
-          ></v-text-field>
-          <v-switch class="mr-3" v-model="myGames"  :disabled="notFull ? true : false " inset label="Мои игры"></v-switch>
-          <v-switch class="mr-3" v-model="notFull" :disabled="myGames ? true : false" inset label="Не полные"></v-switch>
+          <v-row>
+            <v-col cols="12">
+              <v-text-field
+                class
+                placeholder="поиск по играм"
+                append-icon="mdi-file-document-box-search"
+              ></v-text-field>
+            </v-col>
+            <v-col class="ma-0" cols="6">
+              <v-switch
+                class="mr-3 flex-auto"
+                v-model="myGames"
+                :disabled="notFull ? true : false "
+                inset
+                label="Мои игры"
+              ></v-switch>
+
+              <v-btn-toggle v-model="role" v-if="myGames" rounded borderless>
+                <v-btn value="master">
+                  <span class="hidden-sm-and-down">Мастер</span>
+
+                  <v-icon right>mdi-lead-pencil</v-icon>
+                </v-btn>
+
+                <v-btn value="player">
+                  <span class="hidden-sm-and-down">Игрок</span>
+
+                  <v-icon right>mdi-gamepad-round</v-icon>
+                </v-btn>
+
+                <v-btn value="observer">
+                  <span class="hidden-sm-and-down">Наблюдатель</span>
+
+                  <v-icon right>mdi-file-eye</v-icon>
+                </v-btn>
+              </v-btn-toggle>
+            </v-col>
+            <v-col class="ma-0" cols="6">
+              <v-switch
+                class="mr-3"
+                v-model="notFull"
+                :disabled="myGames ? true : false"
+                inset
+                label="Не полные"
+              ></v-switch>
+            </v-col>
+          </v-row>
         </v-card-actions>
         <v-list max-height="500" class="overflow-y-auto">
           <v-list-item-group v-model="gameselected" color="green">
@@ -112,6 +152,7 @@ export default {
     return {
       myGames: true,
       notFull: false,
+      role: "player",
       gameselected: "",
       games: [
         {

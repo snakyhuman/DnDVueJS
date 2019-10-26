@@ -11,7 +11,7 @@
     <v-content  class="pt-0" >
       <v-row >
         <v-col class="text-center text-uppercase " cols="12">
-          <h1>Что такое ПАСТВА</h1>
+          <h1>О проекте</h1>
         </v-col>
       </v-row>
       <v-row align-content="center" justify-content="center">
