@@ -33,24 +33,32 @@
       </v-row>
       <v-row justify="center" align="center">
         <v-col cols="auto">
-          <v-btn icon color="#dd4b39">
+          <v-btn icon color="#dd4b39" @click="googleSignIn">
             <v-icon>mdi-google</v-icon>
           </v-btn>
         </v-col>
         <v-col cols="auto">
-          <v-btn icon>
+          <v-btn disabled icon>
             <v-icon color="#3b5999">mdi-facebook</v-icon>
           </v-btn>
         </v-col>
         <v-col cols="auto">
-          <v-btn icon>
+          <v-btn disabled icon>
             <v-icon color="#0084ff">mdi-twitter</v-icon>
           </v-btn>
         </v-col>
       </v-row>
+      <v-alert
+        v-show="error"
+        :value="error"
+        border="top"
+        colored-border
+        type="warning"
+        elevation="1"
+      >{{error}}</v-alert>
       <v-row>
         <v-col cols="12" md="6">
-          <v-btn block class="mr-4" color="green" @click="signup">Войти</v-btn>
+          <v-btn :loading="processing" block class="mr-4" color="green" @click="signin">Войти</v-btn>
         </v-col>
         <v-col cols="12" md="6">
           <v-btn block color="error" class="mr-4" @click.stop="closeDialog">Отмена</v-btn>
@@ -64,6 +72,20 @@
 export default {
   name: "log-in",
   computed: {
+    error() {
+      return this.$store.getters.get_error;
+    },
+    processing() {
+      return this.$store.getters.get_processing;
+    },
+    isAuth() {
+      return this.$store.getters.get_isAuth;
+    }
+  },
+  watch: {
+    isAuth(val) {
+      if (val === true) this.closeDialog();
+    }
   },
   data: () => ({
     valid: true,
@@ -71,9 +93,7 @@ export default {
     password: "",
     showPassword: false,
     rules: {
-      passwordRules: [
-        v => !!v || "Необходимо ввести пароль"
-      ],
+      passwordRules: [v => !!v || "Необходимо ввести пароль"],
       emailRules: [
         v => !!v || "Необходимо ввести E-mail",
         v => /.+@.+\..+/.test(v) || "E-mail Должен быть настоящим"
@@ -88,10 +108,16 @@ export default {
     closeDialog() {
       this.$emit("closeDialog");
     },
-    signup() {
+    signin() {
       if (this.validate()) {
-        this.email = "AAAAAAAAAAAAAAAAa";
+        this.$store.dispatch("signIn", {
+          email: this.email,
+          password: this.password
+        });
       }
+    },
+    googleSignIn() {
+      this.$store.dispatch("googleSignIn");
     }
   }
 };

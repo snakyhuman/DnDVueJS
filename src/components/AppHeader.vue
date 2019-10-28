@@ -9,7 +9,13 @@
       <v-icon>mdi-dice-6</v-icon>
     </v-app-bar-nav-icon>
 
-    <v-dialog v-model="signUpDialog" persistent max-width="600px" class="fill-height">
+    <v-dialog
+      v-if="!isAuth"
+      v-model="signUpDialog"
+      persistent
+      max-width="600px"
+      class="fill-height"
+    >
       <template v-slot:activator="{ on }">
         <v-app-bar-nav-icon v-on="on" class="mx-1">
           <v-icon>mdi-account-plus</v-icon>
@@ -18,7 +24,7 @@
       <sign-up @closeDialog="signUpDialog = false"></sign-up>
     </v-dialog>
 
-    <v-dialog v-model="logInDialog" persistent max-width="600px" class="fill-height">
+    <v-dialog v-if="!isAuth" v-model="logInDialog" persistent max-width="600px" class="fill-height">
       <template v-slot:activator="{ on }">
         <v-app-bar-nav-icon v-on="on" class="mx-1">
           <v-icon>mdi-login</v-icon>
@@ -27,11 +33,14 @@
       <log-in @closeDialog="logInDialog = false"></log-in>
     </v-dialog>
 
-    <v-menu bottom transition="slide-y-transition" offset-y left>
+    <v-menu v-if="isAuth" bottom transition="slide-y-transition" offset-y left>
       <template v-slot:activator="{ on }">
         <v-app-bar-nav-icon class="mx-1" v-on="on">
-          <v-avatar dark v-on:="on">
-            <img class="align-center" src="https://cdn.vuetifyjs.com/images/john.jpg" alt="John" />
+          <v-avatar dark v-on:="on" v-if="currentUser.photoURL">
+            <img class="align-center" :src="currentUser.photoURL" :alt="currentUser.displayName" />
+          </v-avatar>
+          <v-avatar dark v-on:="on" v-if="!currentUser.photoURL">
+            <v-icon>mdi-account-badge</v-icon>
           </v-avatar>
         </v-app-bar-nav-icon>
       </template>
@@ -39,13 +48,15 @@
       <v-card>
         <v-list>
           <v-list-item>
-            <v-list-item-avatar>
-              <img src="https://cdn.vuetifyjs.com/images/john.jpg" alt="John" />
+            <v-list-item-avatar v-if="currentUser.photoURL">
+              <img :src="currentUser.photoURL" alt="currentUser.displayName" />
             </v-list-item-avatar>
-
+            <v-list-item-avatar dark v-on:="on" v-if="!currentUser.photoURL">
+              <v-icon>mdi-account-badge</v-icon>
+            </v-list-item-avatar>
             <v-list-item-content>
-              <v-list-item-title>John Leider</v-list-item-title>
-              <v-list-item-subtitle>Founder of Vuetify.js</v-list-item-subtitle>
+              <v-list-item-title>{{currentUser.displayName}}</v-list-item-title>
+              <v-list-item-subtitle>{{currentUser.email}}</v-list-item-subtitle>
             </v-list-item-content>
           </v-list-item>
         </v-list>
@@ -74,15 +85,14 @@
                 <v-spacer></v-spacer>
                 <v-toolbar-items>
                   <v-btn dark text @click="profileDialog = false">
-                    <v-icon left>mdi-content-save</v-icon>
-                    Сохранить
+                    <v-icon left>mdi-content-save</v-icon>Сохранить
                   </v-btn>
                 </v-toolbar-items>
               </v-toolbar>
             </v-card>
           </v-dialog>
 
-          <v-list-item @click.prevent>
+          <v-list-item @click="signout">
             <v-icon left>mdi-logout</v-icon>
             <v-list-item-title>Выйти</v-list-item-title>
           </v-list-item>
@@ -97,7 +107,17 @@ import SignUp from "./SignUp.vue";
 import LogIn from "./LogIn.vue";
 
 export default {
-  computed: {},
+  computed: {
+    processing() {
+      return this.$store.getters.get_processing;
+    },
+    isAuth() {
+      return this.$store.getters.get_isAuth;
+    },
+    currentUser() {
+      return this.$store.getters.get_currentUser;
+    }
+  },
   data: function() {
     return {
       draver: false,
@@ -105,6 +125,11 @@ export default {
       logInDialog: false,
       profileDialog: false
     };
+  },
+  methods: {
+    signout() {
+      this.$store.dispatch("signOut");
+    }
   },
   components: {
     SignUp,

@@ -2,15 +2,16 @@
   <v-container flex>
     <v-row>
       <v-card tile>
-        <v-card-title>Мои игры</v-card-title>
+        <v-card-title>Игры</v-card-title>
         <v-card-actions class="px-6">
           <v-row>
-            <v-col cols="12">
-              <v-text-field
-                class
-                placeholder="поиск по играм"
-                append-icon="mdi-file-document-box-search"
-              ></v-text-field>
+            <v-col cols="9">
+              <v-text-field class placeholder="поиск по играм" append-icon="mdi-file-find"></v-text-field>
+            </v-col>
+            <v-col cols="3">
+              <v-btn elevation="4" large>
+              Поиск
+              </v-btn>
             </v-col>
             <v-col class="ma-0" cols="6">
               <v-switch
