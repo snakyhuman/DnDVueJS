@@ -77,18 +77,14 @@
               </v-list-item>
             </template>
             <v-card tile>
-              <v-toolbar dark color="primary">
+              <v-toolbar dark elevation="10">
                 <v-btn icon dark @click="profileDialog = false">
                   <v-icon>mdi-close</v-icon>
                 </v-btn>
                 <v-toolbar-title>Профиль</v-toolbar-title>
-                <v-spacer></v-spacer>
-                <v-toolbar-items>
-                  <v-btn dark text @click="profileDialog = false">
-                    <v-icon left>mdi-content-save</v-icon>Сохранить
-                  </v-btn>
-                </v-toolbar-items>
+
               </v-toolbar>
+              <profile/>
             </v-card>
           </v-dialog>
 
@@ -105,7 +101,7 @@
 <script>
 import SignUp from "./SignUp.vue";
 import LogIn from "./LogIn.vue";
-
+import Profile from "./Profile.vue";
 export default {
   computed: {
     processing() {
@@ -133,7 +129,8 @@ export default {
   },
   components: {
     SignUp,
-    LogIn
+    LogIn,
+    Profile
   }
 };
 </script>

@@ -22,6 +22,9 @@ new Vue({
     created() {
         firebase.auth().onAuthStateChanged(function(user) {
             store.dispatch('stateChanged', user);
-        })
+        });
+        store.dispatch('initDB');
     },
+    mounted() {},
+
 }).$mount('#app')

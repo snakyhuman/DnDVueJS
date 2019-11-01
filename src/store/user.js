@@ -22,7 +22,8 @@ export default {
                 uid: null,
                 user: {}
             }
-        }
+        },
+
     },
     actions: {
         signUp({
@@ -30,7 +31,7 @@ export default {
         }, user) {
             commit('set_processing', true);
             commit('clear_error');
-            firebase.auth().languageCode = 'ru_Ru';
+            firebase.auth().useDeviceLanguage();
             firebase.auth().createUserWithEmailAndPassword(user.email, user.password)
                 .then(() => {
                     commit('set_processing', false);
@@ -45,7 +46,7 @@ export default {
         }, user) {
             commit('set_processing', true);
             commit('clear_error');
-            firebase.auth().languageCode = 'ru_Ru';
+            firebase.auth().useDeviceLanguage();
             firebase.auth().signInWithEmailAndPassword(user.email, user.password)
                 .then(() => {
                     commit('set_processing', false);
@@ -60,7 +61,7 @@ export default {
         }) {
             commit('set_processing', true);
             var provider = new firebase.auth.GoogleAuthProvider();
-            firebase.auth().languageCode = 'ru_Ru';
+            firebase.auth().useDeviceLanguage();
             firebase.auth().signInWithPopup(provider).then(function() {
                 commit('set_processing', false);
             }).catch(function(error) {
@@ -80,10 +81,22 @@ export default {
         },
         signOut() {
             firebase.auth().signOut();
+        },
+        //logic for roles, games and etc
+        async changeUserData({ commit }, user) {
+            let db = this.state.getters.get_db;
+            let userRef = await db.collection("user").doc(this.state.currentUser.uid);
+            commit('set_user', user);
         }
     },
     getters: {
         get_isAuth: (state) => state.currentUser.isAuth,
-        get_currentUser: (state) => state.currentUser.user
+        get_currentUser: (state) => state.currentUser.user,
+        get_isAdmin: (state) => {
+            if (state.currentUser.user.isAdmin)
+                return true;
+            else
+                return false;
+        }
     }
 }

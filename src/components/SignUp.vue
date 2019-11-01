@@ -1,5 +1,5 @@
 <template>
-  <v-card dark tile class="py-3 px-6">
+  <v-card dark tile class="py-3 px-6" :loading="processing">
     <v-card-title class="justify-center text-center">РЕГИСТРАЦИЯ</v-card-title>
     <v-form ref="form" v-model="valid" class="py-6">
       <v-row>

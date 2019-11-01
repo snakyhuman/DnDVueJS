@@ -1,5 +1,5 @@
 <template>
-  <v-container class="container">
+  <v-container  class="container">
     <v-parallax
       class="parallax"
       height="300"
