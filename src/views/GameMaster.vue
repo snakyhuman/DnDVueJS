@@ -1,62 +1,68 @@
 <template>
-  <v-container fluid class="pa-0">
+  <v-container class="pa-0">
     <!-- search and navigation -->
-    <v-card class="pa-1 mb-0 mt-0">
-      <v-card-actions class="flex-wrap pa-0 ma-0">
+    <v-card>
+      <v-img
+        src="./../assets/roleplay-banner.jpg"
+        class="white--text align-start"
+        gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
+        height="200px"
+      >
         <v-card-title>ИГРЫ</v-card-title>
-        <v-btn text rounded @click="showSearch = !showSearch" class="ml-3">
-          <v-icon>mdi-magnify</v-icon>
-        </v-btn>
-        <v-switch v-model="asPlayer" inset label="Игрок" class="ml-3 mt-0"></v-switch>
-        <v-switch v-model="asMaster" inset label="Мастер" class="ml-3 mt-0"></v-switch>
-        <v-switch v-model="notFull" inset label="Не полные" class="ml-3 mt-0"></v-switch>
-      </v-card-actions>
-      <v-container>
-        <v-expand-x-transition>
+        <v-container>
           <v-text-field
-            v-show="showSearch"
             clear-icon="mdi-close"
-            solo
+            filled
+            dark
             label="поиск"
-            placeholder="ковбои здесь пидоры..."
+            placeholder="начните вводить название..."
             clearable
-            class="my-0"
+            prepend-icon="mdi-magnify"
+            class="mx-4"
           ></v-text-field>
-        </v-expand-x-transition>
-      </v-container>
+        </v-container>
+      </v-img>
     </v-card>
-    <v-container fluid class="pa-0">
+
+    <!-- Games cards  -->
+    <v-container>
       <v-item-group>
-        <v-container fluid>
+        <v-container>
           <v-row>
             <v-col cols="12" md="6">
               <v-item>
-                <v-card elevation="0" height="300" class="ma-0 pa-0" >
-                  new game
-                </v-card>
+                <v-card
+                  elevation="5"
+                  class="overflow-hidden"
+                  height="250"
+                  @click="newGameDialog = true"
+                ></v-card>
               </v-item>
             </v-col>
             <v-col v-for="(game, i) in games" :key="i" cols="12" md="6">
-              <v-item v-slot:default="{ active }" height="200">
-                <game-card :game="game"/>
+              <v-item v-slot:default="{ active }">
+                <game-card :game="game" />
               </v-item>
             </v-col>
           </v-row>
         </v-container>
       </v-item-group>
+      <v-dialog v-model="newGameDialog" width="1000">
+        <new-game />
+      </v-dialog>
     </v-container>
   </v-container>
 </template>
 
 <script>
 import GameCard from "./GameCard.vue";
+import NewGame from "./NewGame.vue";
 export default {
   name: "gamemaster",
   data: function() {
     return {
-      dialogs: [],
       filter: [],
-      showSearch: false,
+      newGameDialog: false,
       asPlayer: true,
       asMaster: true,
       notFull: false,
@@ -70,10 +76,36 @@ export default {
             "https://img2.goodfon.com/wallpaper/nbig/0/ea/call-of-juarez-bound-in.jpg",
           master: "Николай Машуков",
           description:
-            "Lorem ipsum dolor sit amet consectetur adipisicing elit. Sed placeat quas iusto illum voluptatibus deleniti laudantium quasi unde, excepturi velit nemo minima cupiditate expedita facere. Nemo assumenda eos consectetur iure.",
+            "Lorem ipsum dolor sit amet consectetur adipisicing elit. Sed placeat quas iusto illum voluptatibus deleniti laudantium quasi unde, excepturi velit nemo minima cupiditate expedita facere. Nemo assumenda eos consectetur iure.Sed placeat quas iusto illum voluptatibus deleniti laudantium quasi unde, excepturi velit nemo minima cupiditate expedita facere. Nemo assumenda eos consectetur iure.",
           lastBatch: new Date().toISOString().substr(0, 10),
           nextBatch: new Date().toISOString().substr(0, 10),
           maxParty: 4,
+          party: [
+            {
+              name: "",
+              character: ""
+            },
+            {
+              name: "",
+              character: ""
+            },
+            {
+              name: "",
+              character: ""
+            },
+            {
+              name: "",
+              character: ""
+            }
+          ]
+        },
+        {
+          id: "aassdasdsad",
+          title: "Ковбои здесь пидоры",
+          maxParty: 444,
+          master: "Николай Машуков",
+          lastBatch: new Date().toISOString().substr(0, 10),
+          nextBatch: new Date().toISOString().substr(0, 10),
           party: [
             {
               name: "",
@@ -177,32 +209,6 @@ export default {
         {
           id: "aassdasdsad",
           title: "Ковбои здесь пидоры",
-
-          master: "Николай Машуков",
-          lastBatch: new Date().toISOString().substr(0, 10),
-          nextBatch: new Date().toISOString().substr(0, 10),
-          party: [
-            {
-              name: "",
-              character: ""
-            },
-            {
-              name: "",
-              character: ""
-            },
-            {
-              name: "",
-              character: ""
-            },
-            {
-              name: "",
-              character: ""
-            }
-          ]
-        },
-        {
-          id: "aassdasdsad",
-          title: "Ковбои здесь пидоры",
           img:
             "https://img2.goodfon.com/wallpaper/nbig/0/ea/call-of-juarez-bound-in.jpg",
           master: "Николай Машуков",
@@ -259,7 +265,8 @@ export default {
     };
   },
   components: {
-    GameCard
+    GameCard,
+    NewGame
   }
 };
 </script >
