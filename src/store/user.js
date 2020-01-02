@@ -62,7 +62,8 @@ export default {
             commit('set_processing', true);
             var provider = new firebase.auth.GoogleAuthProvider();
             firebase.auth().useDeviceLanguage();
-            firebase.auth().signInWithPopup(provider).then(function() {
+            // firebase.auth().signInWithPopup(provider)
+            firebase.auth().signInWithRedirect(provider).then(function() {
                 commit('set_processing', false);
             }).catch(function(error) {
                 commit('set_processing', false);
