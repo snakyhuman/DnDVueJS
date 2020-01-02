@@ -1,7 +1,7 @@
 <template>
   <v-app-bar color="white" height="60" app>
     <v-app-bar-nav-icon color="primary" to="/home">
-      <v-icon>mdi-church</v-icon>
+      <v-icon>mdi-alpha-n-box</v-icon>
     </v-app-bar-nav-icon>
     <v-toolbar-title>ST.NIKOLAY</v-toolbar-title>
     <v-spacer></v-spacer>

@@ -1,7 +1,7 @@
 <template>
   <v-container fluid class="pa-0">
     <!-- search and navigation -->
-    <v-card class="pa-1 mb-0 mt-0 hidden-sm-and-down">
+    <v-card class="pa-1 mb-0 mt-0">
       <v-card-actions class="flex-wrap pa-0 ma-0">
         <v-card-title>ИГРЫ</v-card-title>
         <v-btn text rounded @click="showSearch = !showSearch" class="ml-3">
@@ -31,13 +31,13 @@
           <v-row>
             <v-col cols="12" md="6">
               <v-item>
-                <v-card elevation="5" height="200" class="ma-0 pa-0 fill-height overflow-hidden">
+                <v-card elevation="0" height="300" class="ma-0 pa-0" >
                   new game
                 </v-card>
               </v-item>
             </v-col>
             <v-col v-for="(game, i) in games" :key="i" cols="12" md="6">
-              <v-item v-slot:default="{ active }">
+              <v-item v-slot:default="{ active }" height="200">
                 <game-card :game="game"/>
               </v-item>
             </v-col>
@@ -45,39 +45,6 @@
         </v-container>
       </v-item-group>
     </v-container>
-    <v-bottom-navigation hide-on-scroll grow fixed color="deep-purple" class="hidden-md-and-up">
-      <v-text-field
-        filled
-        v-show="showSearch"
-        clear-icon="mdi-close"
-        label="поиск"
-        placeholder="ковбои здесь пидоры..."
-        clearable
-        class="my-0"
-      ></v-text-field>
-
-      <v-btn width="20" @click="showSearch = !showSearch">
-        <span>Поиск</span>
-        <v-icon>mdi-magnify</v-icon>
-      </v-btn>
-
-      <v-btn-toggle v-show="!showSearch" v-model="filter" color="primary" group multiple>
-        <v-btn :value="1" text>
-          <span>Игрок</span>
-          <v-icon>mdi-gamepad-variant</v-icon>
-        </v-btn>
-
-        <v-btn :value="2" text>
-          <span>Мастер</span>
-          <v-icon>mdi-dice-4</v-icon>
-        </v-btn>
-
-        <v-btn :value="3" text>
-          <span>Не полные</span>
-          <v-icon>mdi-notebook</v-icon>
-        </v-btn>
-      </v-btn-toggle>
-    </v-bottom-navigation>
   </v-container>
 </template>
 

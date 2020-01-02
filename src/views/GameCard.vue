@@ -1,5 +1,5 @@
 <template>
-  <v-card elevation="5" class="ma-0 pa-0 overflow-hidden" height="100%" @click="dialog = true">
+  <v-card elevation="5" class="ma-0 pa-0 overflow-hidden" height="300" @click="dialog = true">
     <v-row class="ma-0 pa-0" dense>
       <v-col cols="12" xs="12" sm="6" lg="5" class="ma-0 pa-0">
         <v-img
