@@ -8,6 +8,9 @@
     <v-app-bar-nav-icon to="/game" class="mx-1" icon color="success" x-large>
       <v-icon>mdi-dice-6</v-icon>
     </v-app-bar-nav-icon>
+    <v-app-bar-nav-icon v-if="currentUser" to="/game-rules" class="mx-1" icon color="success" x-large>
+      <v-icon>mdi-settings</v-icon>
+    </v-app-bar-nav-icon>
 
     <v-dialog
       v-if="!isAuth"

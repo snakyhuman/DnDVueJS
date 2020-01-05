@@ -25,18 +25,21 @@
     </v-card>
 
     <!-- Games cards  -->
-    <v-container>
+    <v-container class="px-0">
       <v-item-group>
-        <v-container>
+        <v-container class="px-0">
           <v-row>
-            <v-col cols="12" md="6">
+            <v-col cols="12" md="6" >
               <v-item>
                 <v-card
                   elevation="5"
-                  class="overflow-hidden"
+                  class="overflow-hidden elevation-10 d-flex align-center"
                   height="250"
+                  dark
                   @click="newGameDialog = true"
-                ></v-card>
+                >
+                  <div class="display-3 text--white flex-grow-1 text-center">Создать игру</div>
+                </v-card>
               </v-item>
             </v-col>
             <v-col v-for="(game, i) in games" :key="i" cols="12" md="6">

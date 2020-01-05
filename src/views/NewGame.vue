@@ -98,7 +98,7 @@
       <v-row>
         <v-spacer></v-spacer>
         <v-card-actions>
-          <v-btn>Создать партию</v-btn>
+          <v-btn to="/admin">Создать партию</v-btn>
           <v-btn>Отмена</v-btn>
         </v-card-actions>
       </v-row>

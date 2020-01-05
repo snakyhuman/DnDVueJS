@@ -2,7 +2,8 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import Home from './views/Home.vue'
 import GameMaser from './views/GameMaster.vue';
-
+import GamePlayerProfile from './views/game/GamePlayerProfile.vue';
+import GameAdmin from './views/game/GameAdmin.vue';
 Vue.use(Router)
 
 export default new Router({
@@ -15,6 +16,16 @@ export default new Router({
             path: '/game',
             name: 'gamemaster',
             component: GameMaser
+        },
+        {
+            path: '/profile',
+            name: 'profile',
+            component: GamePlayerProfile
+        },
+        {
+            path: '/admin',
+            name: 'admin',
+            component: GameAdmin
         },
         {
             path: '/about',

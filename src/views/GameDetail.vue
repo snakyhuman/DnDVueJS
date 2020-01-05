@@ -35,7 +35,8 @@
         </v-col>
       </v-row>
       <v-card-actions>
-        <v-btn>Присоединиться</v-btn>
+        <v-btn to="/admin">Панель мастера</v-btn>
+        <v-btn to="/profile">Присоединиться</v-btn>
         <v-btn>Персонаж</v-btn>
         <v-btn icon>
           <v-icon>mdi-cards-heart</v-icon>
