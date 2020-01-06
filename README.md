@@ -1,4 +1,7 @@
-# st_nikolay
+# DnDVueJS
+SPA for dungeon and dragons.
+
+
 
 ## Project setup
 ```
@@ -22,6 +25,3 @@ yarn lint
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
-
-# DnDVueJS
-SPA for dungeon and dragons.
