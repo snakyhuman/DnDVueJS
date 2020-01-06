@@ -8,11 +8,14 @@ import vuetify from './plugins/vuetify';
 import '@babel/polyfill'
 import firebaseConfig from './plugins/firebase';
 import firebase from 'firebase';
+import 'firebase/firestore';
+Vue.use(Vuetify);
+Vue.config.productionTip = false;
 
-Vue.use(Vuetify)
-Vue.config.productionTip = false
+const firebaseAPP = firebase.initializeApp(firebaseConfig);
+const db = firebaseAPP.firestore();
 
-firebase.initializeApp(firebaseConfig);
+Vue.$db = db;
 
 new Vue({
     router,

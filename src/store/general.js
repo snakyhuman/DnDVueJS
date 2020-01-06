@@ -1,9 +1,7 @@
-import firebase from 'firebase';
 export default {
     state: {
         processing: false,
         error: null,
-        db: null
     },
     mutations: {
         set_processing(state, payload) {
