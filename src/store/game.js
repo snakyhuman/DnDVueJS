@@ -1,7 +1,9 @@
 import Vue from 'vue';
 export default {
     state: {
-        game: {},
+        games: [],
+        rules: {},
+        races: [],
         error: null
     },
     mutations: {
@@ -11,6 +13,9 @@ export default {
         set_error(state, err) {
             state.error = err;
         }
+    },
+    getters: {
+
     },
     actions: {
         get_rules({ commit }) {
@@ -47,8 +52,5 @@ export default {
             commit('set_processing', false);
 
         }
-    },
-    getters: {
-
     }
 }

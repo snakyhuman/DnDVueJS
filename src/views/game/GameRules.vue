@@ -9,25 +9,27 @@
 
       <v-tabs-items v-model="tabs">
         <v-tab-item>
-          <items/>
+          <items />
         </v-tab-item>
         <v-tab-item>
-          <perks/>
+          <perks />
         </v-tab-item>
         <v-tab-item>
-          <v-card flat min-height="300">
-           
-          </v-card>
+         <qualities/>
+         <item-types/>
+         <races/>
         </v-tab-item>
       </v-tabs-items>
-
     </v-card>
   </v-container>
 </template>
 
 <script>
-import Items from './Items.vue'
-import Perks from './Perks.vue'
+import Items from "./Items.vue";
+import Perks from "./Perks.vue";
+import Qualities from "./Qualities.vue";
+import ItemTypes from "./ItemTypes.vue";
+import Races from "./Races.vue";
 export default {
   name: "game-rules",
   computed: {
@@ -63,7 +65,11 @@ export default {
     }
   },
   components: {
-    Items, Perks
+    Items,
+    Perks,
+    Qualities,
+    ItemTypes,
+    Races
   },
   mounted() {
     this.$store.dispatch("get_rules");

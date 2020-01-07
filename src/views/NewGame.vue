@@ -6,6 +6,7 @@
       <v-row>
         <v-col cols="12" xs="12" sm="6" lg="6">
           <v-img
+            v-model="newGame.image"
             src="../assets/imagePlaceholder.jpg"
             class="new-game--image white--text align-end pl-3 pt-3 mb-3"
             lazy-src="../assets/imagePlaceholder.jpg"
@@ -19,7 +20,7 @@
             <!-- Date picker -->
             <v-col cols="12" xs="12" sm="6" lg="6">
               <v-dialog
-                ref="dialog"
+                ref="dateDialog"
                 v-model="dateModal"
                 :return-value.sync="date"
                 persistent
@@ -37,7 +38,7 @@
                 <v-date-picker v-model="date" scrollable locale="ru-ru">
                   <v-spacer></v-spacer>
                   <v-btn text color="primary" @click="dateModal = false">Отмена</v-btn>
-                  <v-btn text color="primary" @click="$refs.dialog.save(date)">OK</v-btn>
+                  <v-btn text color="primary" @click="$refs.dateDialog.save(date)">OK</v-btn>
                 </v-date-picker>
               </v-dialog>
             </v-col>
@@ -45,7 +46,7 @@
             <!-- Time picker -->
             <v-col cols="12" xs="12" sm="6" lg="6">
               <v-dialog
-                ref="dialog"
+                ref="timeDialog"
                 v-model="timeModal"
                 :return-value.sync="time"
                 persistent
@@ -69,7 +70,7 @@
                 >
                   <v-spacer></v-spacer>
                   <v-btn text color="primary" @click="timeModal = false">Отмена</v-btn>
-                  <v-btn text color="primary" @click="$refs.dialog.save(time)">OK</v-btn>
+                  <v-btn text color="primary" @click="$refs.timeDialog.save(time)">OK</v-btn>
                 </v-time-picker>
               </v-dialog>
             </v-col>
@@ -77,7 +78,7 @@
         </v-col>
         <v-col cols="12" xs="12" sm="6" lg="6">
           <v-textarea
-            v-model="description"
+            v-model="newGame.description"
             auto-grow
             filled
             rounded
@@ -87,11 +88,11 @@
             rows="1"
           ></v-textarea>
           <v-col cols="12" xs="12" sm="6" lg="6">
-            <v-switch v-model="invites" inset label="Только по приглашениям"></v-switch>
+            <v-switch v-model="newGame.invites" inset label="Только по приглашениям"></v-switch>
           </v-col>
           <v-col cols="12">
             <v-subheader class="mb-6 mt-0 pl-0 mx-4">Максимальное количество игроков</v-subheader>
-            <v-slider class="mx-1" v-model="maxPlayers" thumb-label="always" th max="20" min="2"></v-slider>
+            <v-slider class="mx-1" v-model="newGame.maxPlayers" thumb-label="always" th max="20" min="2"></v-slider>
           </v-col>
         </v-col>
       </v-row>
@@ -107,19 +108,36 @@
 </template>
 
 <script>
+// import Vue from "vue";
+import firebase from 'firebase'
 export default {
   name: "new-game",
   data() {
     return {
+      newGame: {
+        description: "Партия настольной игры. Печеньки прилагаются",
+        eventDate: this.eventDate,
+        image: "",
+        invites: false,
+        master: "/users/"+this.currentUser,
+        maxPlayers: 4,
+        name: "Новая партия 1",
+        players: []
+      },
       date: new Date().toISOString().substr(0, 10),
       time: new Date().toISOString().substr(11, 5),
-      menu: false,
       dateModal: false,
       timeModal: false,
-      invites: false,
-      maxPlayers: 6,
-      description: ""
     };
+  },
+  computed: {
+     currentUser() {
+      return this.$store.getters.get_currentUser.uid;
+    },
+    eventDate(){
+      let date = new Date(this.date+"T"+this.time);
+      return firebase.firestore.Timestamp.fromDate(date);
+    }
   }
 };
 </script>
