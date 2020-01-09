@@ -38,7 +38,8 @@
 
 <script>
 import GameDetail from "./GameDetail.vue";
-import Vue from "vue";
+import * as firebase from "firebase";
+
 
 export default {
   name: "game-card",
@@ -48,13 +49,13 @@ export default {
   data() {
     return {
       dialog: false,
+      error: null,
       master: { displayName: "Неизвестный ёж" }
     };
   },
   methods: {
     Master() {
-      let db = Vue.$db.doc(this.data.master.path);
-      db.get()
+       firebase.firestore().doc(this.data.master.path).get()
         .then(d => {
           this.master = d.data();
         })

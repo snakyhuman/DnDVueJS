@@ -46,7 +46,7 @@
 </template>
 
 <script>
-import Vue from "vue";
+import * as firebase from "firebase";
 
 export default {
   name: "game-detail",
@@ -112,7 +112,7 @@ export default {
   },
   methods: {
     Master() {
-      let db = Vue.$db.doc(this.game.master.path);
+      let db = firebase.firestore().doc(this.game.master.path);
       db.get()
         .then(d => {
           this.master = d.data();

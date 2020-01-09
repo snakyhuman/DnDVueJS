@@ -47,14 +47,14 @@
             <!-- Games -->
             <v-col v-for="(game, i) in games" :key="i" cols="12" md="6">
               <v-item v-slot:default="{ active }">
-                <game-card :game="game" />
+                <game-card  :game="game" />
               </v-item>
             </v-col>
           </v-row>
         </v-container>
       </v-item-group>
       <v-dialog v-model="newGameDialog" width="1000">
-        <new-game />
+        <new-game  @closeDialog="newGameDialog = false" />
       </v-dialog>
     </v-container>
   </v-container>
@@ -63,7 +63,7 @@
 <script>
 import GameCard from "./GameCard.vue";
 import NewGame from "./NewGame.vue";
-import Vue from "vue";
+import * as firebase from "firebase";
 
 export default {
   name: "gamemaster",
@@ -82,7 +82,7 @@ export default {
   methods: {
     get_games() {
 this.games = [];
-       Vue.$db
+       firebase.firestore()
          .collection("games")
          .get()
          .then(data => {
