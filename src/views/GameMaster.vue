@@ -30,8 +30,7 @@
         <v-container class="px-0">
           <v-row>
             <v-col cols="12" md="6">
-
-            <!-- New game -->
+              <!-- New game -->
               <v-item v-if="isAuth">
                 <v-card
                   elevation="5"
@@ -47,14 +46,14 @@
             <!-- Games -->
             <v-col v-for="(game, i) in games" :key="i" cols="12" md="6">
               <v-item v-slot:default="{ active }">
-                <game-card  :game="game" />
+                <game-card :game="game" />
               </v-item>
             </v-col>
           </v-row>
         </v-container>
       </v-item-group>
       <v-dialog v-model="newGameDialog" width="1000">
-        <new-game  @closeDialog="newGameDialog = false" />
+        <new-game @closeDialog="newGameDialog = false" />
       </v-dialog>
     </v-container>
   </v-container>
@@ -81,21 +80,25 @@ export default {
   },
   methods: {
     get_games() {
-this.games = [];
-       firebase.firestore()
-         .collection("games")
-         .get()
-         .then(data => {
-           data.forEach(item => {
-             this.games.push(item);
-           });
-         })
-         .catch(error => {
-           return error;
-         });
+      this.games = [];
+      firebase
+        .firestore()
+        .collection("games")
+        .get()
+        .then(data => {
+          data.forEach(item => {
+            this.games.push(item);
+          });
+        })
+        .catch(error => {
+          return error;
+        });
     }
   },
   created() {
+    this.get_games();
+  },
+  updated() {
     this.get_games();
   },
   components: {

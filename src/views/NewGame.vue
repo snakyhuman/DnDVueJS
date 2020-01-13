@@ -148,7 +148,7 @@ export default {
         invites: false,
         master: null,
         maxPlayers: 4,
-        name: "Новая партия 1",
+        name: "Новая партия",
         players: []
       },
       alert: false,
@@ -197,6 +197,7 @@ export default {
                 this.processing = false;
               },
               function() {
+                //uploading finished correct
                 upload.snapshot.ref.getDownloadURL().then(function(url) {
                   this.processing = false;
                   data.update({ image: url }).then(() => {
@@ -209,10 +210,11 @@ export default {
           } else {
             this.processing = false;
           }
-            this.processing = false;
+          this.processing = false;
           this.alertText = "Игра успешно добвалена!";
           this.isError = false;
           this.alert = true;
+          this.$emit("closeDialog");
         })
         .catch(err => {
           this.processing = false;
