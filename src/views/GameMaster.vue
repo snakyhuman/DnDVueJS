@@ -14,12 +14,13 @@
                             clear-icon="mdi-close"
                             filled
                             dark
+                            v-model="search"
                             label="поиск"
                             placeholder="начните вводить название..."
                             clearable
                             prepend-icon="mdi-magnify"
                             class="mx-4"
-                    ></v-text-field>
+                    />
                 </v-container>
             </v-img>
         </v-card>
@@ -44,7 +45,7 @@
                             </v-item>
                         </v-col>
                         <!-- Games -->
-                        <v-col v-for="(game, i) in games" :key="i" cols="12" md="6">
+                        <v-col v-for="(game, i) in filteredItems" :key="i" cols="12" md="6">
                             <v-item v-slot:default="{ active }">
                                 <game-card :game="game"/>
                             </v-item>
@@ -70,12 +71,24 @@
             return {
                 filter: [],
                 newGameDialog: false,
-                games: []
+                games: [],
+                search: ""
             };
         },
         computed: {
             isAuth() {
                 return this.$store.getters.get_isAuth;
+            },
+            filteredItems () {
+                if(this.search && this.search !== "") {
+                    var query = this.search;
+                    return this.games.filter((x)=> {
+                        return x.data().name.toLowerCase().indexOf(query.toLowerCase()) !== -1
+                    })
+                }
+                else {
+                    return this.games;
+                }
             }
         },
         methods: {
