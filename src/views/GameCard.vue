@@ -19,7 +19,7 @@
           <v-card-title class="ma-0 pa-0 text-break">{{data.name}}</v-card-title>
           <v-card-subtitle
             class="white--text ma-0 pa-0"
-            v-text="'Мастер: ' + (isMaster == true ? 'Вы' : master.displayName)"
+            v-text="'Мастер: ' + (isMaster === true ? 'Вы' : master.displayName)"
           />
           <v-chip color="indigo" text-color="white">
             <v-avatar left>
@@ -44,7 +44,7 @@
       <v-icon>mdi-close</v-icon>
     </v-btn>
     <v-dialog v-model="dialog" width="1000">
-      <game-detail :game="data" />
+      <game-detail :game="data" :game_inst="game" />
     </v-dialog>
   </v-card>
 </template>
@@ -66,7 +66,7 @@ export default {
     };
   },
   methods: {
-    Master() {
+    get_master() {
       firebase
         .firestore()
         .doc(this.data.master.path)
@@ -105,7 +105,7 @@ export default {
     }
   },
   created() {
-    this.Master();
+    this.get_master();
   }
 };
 </script>

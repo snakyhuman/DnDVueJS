@@ -5,30 +5,29 @@
       <v-row>
         <v-col cols="12">
           <v-text-field
-            class="mr-8"
-            prepend-icon="mdi-email"
-            v-model="email"
-            placeholder="example@ex.com"
-            :rules="rules.emailRules"
-            label="E-mail"
-            required
-          ></v-text-field>
+                  class="mr-8"
+                  prepend-icon="mdi-email"
+                  v-model="email"
+                  placeholder="example@ex.com"
+                  :rules="rules.emailRules"
+                  label="E-mail"
+                  required
+          />
         </v-col>
-      </v-row>
-      <v-row>
+
         <v-col cols="12">
           <v-text-field
-            class="mr-8"
-            prepend-icon="mdi-key"
-            :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-            v-model="password"
-            :rules="rules.passwordRules"
-            label="Пароль"
-            :type="showPassword ? 'text' : 'password'"
-            placeholder="пароль"
-            required
-            @click:append="showPassword = !showPassword"
-          ></v-text-field>
+                  class="mr-8"
+                  prepend-icon="mdi-key"
+                  :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+                  v-model="password"
+                  :rules="rules.passwordRules"
+                  label="Пароль"
+                  :type="showPassword ? 'text' : 'password'"
+                  placeholder="пароль"
+                  required
+                  @click:append="showPassword = !showPassword"
+          />
         </v-col>
       </v-row>
       <v-row justify="center" align="center">

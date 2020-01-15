@@ -19,7 +19,7 @@ export default new Router({
             component: GameMaser
         },
         {
-            path: '/profile',
+            path: '/profile/:id',
             name: 'profile',
             component: GamePlayerProfile
         },
