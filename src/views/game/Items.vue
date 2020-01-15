@@ -15,18 +15,22 @@
                         <v-card-text>
                             <v-container>
                                 <v-row>
+                                    <v-col cols="12"><p>Основные характеристики</p></v-col>
                                     <v-col cols="12" md="6" lg="3">
-                                        <v-text-field :counter="30" label="Название предмета" required/>
+                                        <v-text-field v-model="editedItem.name" :counter="30" label="Название предмета"
+                                                      required/>
                                     </v-col>
                                     <v-col cols="12" md="6" lg="3">
-                                        <v-select :items="['aaaa','bbbb','cccc']" label="Тип предмета"/>
+                                        <v-select v-model="editedItem.type" :items="itemTypes" label="Тип предмета"/>
                                     </v-col>
                                     <v-col cols="12" md="6" lg="3">
-                                        <v-text-field :counter="30" label="Цена предмета" required
+                                        <v-text-field v-model="editedItem.cost" :counter="30" label="Цена предмета"
+                                                      required
                                                       type="number"/>
                                     </v-col>
                                     <v-col cols="12" md="6" lg="3">
                                         <v-text-field
+                                                v-model="editedItem.uses"
                                                 :counter="30"
                                                 label="Количество использований"
                                                 required
@@ -35,16 +39,67 @@
                                     </v-col>
                                 </v-row>
                                 <v-row>
-                                    <v-col cols="12" md="6" lg="4">
-                                        <v-text-field :counter="30" label="Урон" required type="number"/>
+                                    <v-col cols="12">
+                                        <p>Свойства оружия</p>
                                     </v-col>
                                     <v-col cols="12" md="6" lg="4">
-                                        <v-text-field :counter="30" label="Радиус" required
+                                        <v-text-field v-model="editedItem.range" :counter="30" label="Радиус" required
                                                       type="number"/>
                                     </v-col>
                                     <v-col cols="12" md="6" lg="4">
-                                        <v-select :items="['aaaa','bbbb','cccc']"
+                                        <v-select v-model="editedItem.ammo" item-text="name" :items="items"
                                                   label="Патроны(расходники)"/>
+                                    </v-col>
+                                </v-row>
+                                <v-row>
+                                    <v-col cols="12" class="mb-0 pb-0"><p>Влияние на характеристики</p></v-col>
+                                    <v-col cols="12" sm="6" md="4" lg="3">
+                                        <v-text-field v-model="editedItem.Strength" label="Сила" type="number"/>
+                                    </v-col>
+                                    <v-col cols="12" sm="6" md="4" lg="3">
+                                        <v-text-field v-model="editedItem.Perception" label="Восприятие" type="number"/>
+                                    </v-col>
+                                    <v-col cols="12" sm="6" md="4" lg="3">
+                                        <v-text-field v-model="editedItem.Endurance" label="Выносливость"
+                                                      type="number"/>
+                                    </v-col>
+                                    <v-col cols="12" sm="6" md="4" lg="3">
+                                        <v-text-field v-model="editedItem.Charisma" label="Харизма" type="number"/>
+                                    </v-col>
+                                    <v-col cols="12" sm="6" md="4" lg="3">
+                                        <v-text-field v-model="editedItem.Intelligence" label="Интеллект"
+                                                      type="number"/>
+                                    </v-col>
+                                    <v-col cols="12" sm="6" md="4" lg="3">
+                                        <v-text-field v-model="editedItem.Agility" label="Ловкость" type="number"/>
+                                    </v-col>
+                                    <v-col cols="12" sm="6" md="4" lg="3">
+                                        <v-text-field v-model="editedItem.Luck" label="Удача" type="number"/>
+                                    </v-col>
+                                    <v-col cols="12" sm="6" md="4" lg="3">
+                                        <v-text-field v-model="editedItem.MeleeDamage" label="Доп. урон (Ближн. оружие)"
+                                                      type="number"/>
+                                    </v-col>
+                                    <v-col cols="12" sm="6" md="4" lg="3">
+                                        <v-text-field v-model="editedItem.MagicDamage" label="Доп. урон (Магия)"
+                                                      type="number"/>
+                                    </v-col>
+                                    <v-col cols="12" sm="6" md="4" lg="3">
+                                        <v-text-field v-model="editedItem.RangeDamage" label="Доп. урон (Дальн. оружие)"
+                                                      type="number"/>
+                                    </v-col>
+                                    <v-col cols="12" sm="6" md="4" lg="3">
+                                        <v-text-field v-model="editedItem.PhysicDef" label="Доп. сопротивление (Физ)"
+                                                      type="number"/>
+                                    </v-col>
+                                    <v-col cols="12" sm="6" md="4" lg="3">
+                                        <v-text-field v-model="editedItem.ElementsDef"
+                                                      label="Доп. сопротивление (Стихии)"
+                                                      type="number"/>
+                                    </v-col>
+                                    <v-col cols="12" sm="6" md="4" lg="3">
+                                        <v-text-field v-model="editedItem.MagicDef" label="Доп. сопротивление (Магия)"
+                                                      type="number"/>
                                     </v-col>
                                 </v-row>
                             </v-container>
@@ -63,7 +118,7 @@
             <v-icon @click="deleteItem(item)" color="red">mdi-delete</v-icon>
         </template>
         <template v-slot:no-data>
-            <v-btn color="primary" @click="dialog = !dialog" text>Создать предмет</v-btn>
+            <v-btn color="primary" @click="dialog = !dialog" text>Новый предмет</v-btn>
         </template>
     </v-data-table>
 </template>
@@ -76,35 +131,71 @@
         data: () => ({
             dialog: false,
             headers: [
-                {text: "Название", sortable: false, value: "name"},
+                {text: "Название", value: "name"},
                 {text: "Цена", value: "cost"},
-                {text: "Тип предмета", value: "type"},
-                {text: "Урон", value: "damage"},
+                {text: "Тип предмета", value: "damageType"},
                 {text: "Кол-во использований", value: "uses"},
                 {text: "Радиус", value: "range"},
                 {text: "Патроны", value: "ammo"},
+                {text: "Доп. урон (Ближн. оружие)", value: "MeleeDamage"},
+                {text: "Доп. урон (Магия)", value: "MagicDamage"},
+                {text: "Доп. урон (Дальн. оружие)", value: "RangeDamage"},
+                {text: "Доп. сопротивление (Физ)", value: "PhysicDef"},
+                {text: "Доп. сопротивление (Стихии)", value: "ElementsDef"},
+                {text: "Доп. сопротивление (Магия)", value: "MagicDef"},
+                {text: "СИЛА", value: "Strength"},
+                {text: "ЛОВКОСТЬ", value: "Agility"},
+                {text: "ИНТЕЛЛЕКТ", value: "Intelligence"},
+                {text: "ВЫНОСЛИВОСТЬ", value: "Endurance"},
+                {text: "ХАРИЗМА", value: "Charisma"},
+                {text: "УДАЧА", value: "Luck"},
+                {text: "ВОСПРИЯТИЕ", value: "Perception"},
                 {text: "", value: "action", sortable: false}
             ],
             items: [],
-            itemTypes:[],
+            itemTypes: [],
             editedIndex: -1,
             editedItem: {
                 name: "",
                 cost: 0,
                 type: "",
-                damage: 0,
                 uses: 0,
                 range: 0,
-                ammo: ""
+                ammo: "",
+                MeleeDamage: 0,
+                MagicDamage: 0,
+                RangeDamage: 0,
+                PhysicDef: 0,
+                ElementsDef: 0,
+                Strength: 0,
+                Perception: 0,
+                MagicDef: 0,
+                Endurance: 0,
+                Charisma: 0,
+                Intelligence: 0,
+                Agility: 0,
+                Luck: 0
             },
             defaultItem: {
                 name: "",
                 cost: 0,
                 type: "",
-                damage: 0,
                 uses: 0,
                 range: 0,
-                ammo: ""
+                ammo: "",
+                MeleeDamage: 0,
+                MagicDamage: 0,
+                RangeDamage: 0,
+                PhysicDef: 0,
+                ElementsDef: 0,
+                Strength: 0,
+                Perception: 0,
+                MagicDef: 0,
+                Endurance: 0,
+                Charisma: 0,
+                Intelligence: 0,
+                Agility: 0,
+                Luck: 0
             }
         }),
 
@@ -129,7 +220,9 @@
             deleteItem(item) {
                 const index = this.item.indexOf(item);
                 confirm("Точно удалить?") &&
-                this.desserts.splice(index, 1);
+                this.items.splice(index, 1) && this.qualities.splice(index, 1) && firebase.firestore().collection('gamerules').doc('main').update({
+                    items: this.items
+                });
             },
 
             close() {
@@ -146,13 +239,21 @@
                 } else {
                     this.items.push(this.editedItem);
                 }
-                this.close();
+                firebase.firestore().collection('gamerules').doc('main').update({
+                    items: this.items
+                }).then(() => {
+                        this.close();
+                    }
+                );
             }
         },
         created() {
             firebase.firestore().collection('gamerules').doc('main').onSnapshot((data) => {
-                this.items = data.data().items;
-                this.itemTypes = data.data().types;
+                this.items = data.data().items || [];
+                this.itemTypes = [];
+                data && data.data().types.forEach((i) => {
+                    this.itemTypes.push(i.name);
+                });
             });
         }
     };
