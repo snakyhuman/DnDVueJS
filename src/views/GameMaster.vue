@@ -81,7 +81,7 @@
             },
             filteredItems () {
                 if(this.search && this.search !== "") {
-                    var query = this.search;
+                    let query = this.search;
                     return this.games.filter((x)=> {
                         return x.data().name.toLowerCase().indexOf(query.toLowerCase()) !== -1
                     })

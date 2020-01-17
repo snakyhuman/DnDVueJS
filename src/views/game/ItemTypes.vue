@@ -45,7 +45,7 @@
             dialog: false,
             headers: [
                 {text: "Название", align: "left", value: "name"},
-                {text: "", value: "action", sortable: false}
+                {text: "", value: "action", align: "right", sortable: false}
             ],
             types: [],
             editedIndex: -1,

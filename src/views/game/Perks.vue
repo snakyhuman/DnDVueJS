@@ -120,7 +120,7 @@
                 {text: "ХАРИЗМА", value: "Charisma"},
                 {text: "УДАЧА", value: "Luck"},
                 {text: "ВОСПРИЯТИЕ", value: "Perception"},
-                {text: "", value: "action", sortable: false}
+                {text: "", value: "action", align: "right",  sortable: false}
             ],
             perks: [],
             editedIndex: -1,
@@ -150,10 +150,10 @@
                 MagicDamage: 0,
                 RangeDamage: 0,
                 PhysicDef: 0,
+                MagicDef: 0,
                 ElementsDef: 0,
                 Strength: 10,
                 Perception: 10,
-                MagicDef: 0,
                 Endurance: 10,
                 Charisma: 10,
                 Intelligence: 10,

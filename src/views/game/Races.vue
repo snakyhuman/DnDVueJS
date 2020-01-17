@@ -16,13 +16,57 @@
                             <v-container>
                                 <v-text-field v-model="editedItem.name" label="Назвние"/>
                                 <v-textarea auto-grow v-model="editedItem.description" label="Описание"/>
-                                <v-text-field v-model="editedItem.Strength"  label="Сила" type="number"/>
-                                <v-text-field v-model="editedItem.Perception"  label="Восприятие" type="number"/>
-                                <v-text-field v-model="editedItem.Endurance"  label="Выносливость" type="number"/>
-                                <v-text-field v-model="editedItem.Charisma"  label="Харизма" type="number"/>
-                                <v-text-field v-model="editedItem.Intelligence"  label="Интеллект" type="number"/>
-                                <v-text-field v-model="editedItem.Agility" label="Ловкость" type="number"/>
-                                <v-text-field v-model="editedItem.Luck"  label="Удача" type="number"/>
+                                <v-row>
+                                    <v-col cols="12" class="mb-0 pb-0"><p>Влияние на характеристики</p></v-col>
+                                    <v-col cols="12" sm="6" md="4" lg="3">
+                                        <v-text-field v-model="editedItem.Strength" label="Сила" type="number"/>
+                                    </v-col>
+                                    <v-col cols="12" sm="6" md="4" lg="3">
+                                        <v-text-field v-model="editedItem.Perception" label="Восприятие" type="number"/>
+                                    </v-col>
+                                    <v-col cols="12" sm="6" md="4" lg="3">
+                                        <v-text-field v-model="editedItem.Endurance" label="Выносливость"
+                                                      type="number"/>
+                                    </v-col>
+                                    <v-col cols="12" sm="6" md="4" lg="3">
+                                        <v-text-field v-model="editedItem.Charisma" label="Харизма" type="number"/>
+                                    </v-col>
+                                    <v-col cols="12" sm="6" md="4" lg="3">
+                                        <v-text-field v-model="editedItem.Intelligence" label="Интеллект"
+                                                      type="number"/>
+                                    </v-col>
+                                    <v-col cols="12" sm="6" md="4" lg="3">
+                                        <v-text-field v-model="editedItem.Agility" label="Ловкость" type="number"/>
+                                    </v-col>
+                                    <v-col cols="12" sm="6" md="4" lg="3">
+                                        <v-text-field v-model="editedItem.Luck" label="Удача" type="number"/>
+                                    </v-col>
+                                    <v-col cols="12" sm="6" md="4" lg="3">
+                                        <v-text-field v-model="editedItem.MeleeDamage" label="Доп. урон (Ближн. оружие)"
+                                                      type="number"/>
+                                    </v-col>
+                                    <v-col cols="12" sm="6" md="4" lg="3">
+                                        <v-text-field v-model="editedItem.MagicDamage" label="Доп. урон (Магия)"
+                                                      type="number"/>
+                                    </v-col>
+                                    <v-col cols="12" sm="6" md="4" lg="3">
+                                        <v-text-field v-model="editedItem.RangeDamage" label="Доп. урон (Дальн. оружие)"
+                                                      type="number"/>
+                                    </v-col>
+                                    <v-col cols="12" sm="6" md="4" lg="3">
+                                        <v-text-field v-model="editedItem.PhysicDef" label="Доп. сопротивление (Физ)"
+                                                      type="number"/>
+                                    </v-col>
+                                    <v-col cols="12" sm="6" md="4" lg="3">
+                                        <v-text-field v-model="editedItem.ElementsDef"
+                                                      label="Доп. сопротивление (Стихии)"
+                                                      type="number"/>
+                                    </v-col>
+                                    <v-col cols="12" sm="6" md="4" lg="3">
+                                        <v-text-field v-model="editedItem.MagicDef" label="Доп. сопротивление (Магия)"
+                                                      type="number"/>
+                                    </v-col>
+                                </v-row>
                             </v-container>
                         </v-card-text>
                         <v-card-actions>
@@ -54,6 +98,12 @@
             headers: [
                 {text: "Название", align: "left", value: "name"},
                 {text: "Описание", align: "left", value: "description"},
+                {text: "Доп. урон (Ближн. оружие)", value: "MeleeDamage"},
+                {text: "Доп. урон (Магия)", value: "MagicDamage"},
+                {text: "Доп. урон (Дальн. оружие)", value: "RangeDamage"},
+                {text: "Доп. сопротивление (Физ)", value: "PhysicDef"},
+                {text: "Доп. сопротивление (Стихии)", value: "ElementsDef"},
+                {text: "Доп. сопротивление (Магия)", value: "MagicDef"},
                 {text: "СИЛА", value: "Strength"},
                 {text: "ЛОВКОСТЬ", value: "Agility"},
                 {text: "ИНТЕЛЛЕКТ", value: "Intelligence"},
@@ -61,13 +111,19 @@
                 {text: "ХАРИЗМА", value: "Charisma"},
                 {text: "УДАЧА", value: "Luck"},
                 {text: "ВОСПРИЯТИЕ", value: "Perception"},
-                {text: "", value: "action", sortable: false}
+                {text: "", value: "action", align: "right", sortable: false}
             ],
             races: [],
             editedIndex: -1,
             editedItem: {
                 name: "",
                 description: "",
+                MeleeDamage: 0,
+                MagicDamage: 0,
+                RangeDamage: 0,
+                PhysicDef: 0,
+                MagicDef: 0,
+                ElementsDef: 0,
                 Strength: 10,
                 Perception: 10,
                 Endurance: 10,
@@ -79,6 +135,12 @@
             defaultItem: {
                 name: "",
                 description: "",
+                MeleeDamage: 0,
+                MagicDamage: 0,
+                RangeDamage: 0,
+                PhysicDef: 0,
+                MagicDef: 0,
+                ElementsDef: 0,
                 Strength: 10,
                 Perception: 10,
                 Endurance: 10,

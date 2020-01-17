@@ -14,7 +14,6 @@ export default {
                 uid: user.uid,
                 user: user
             }
-
         },
         clear_user(state) {
             state.currentUser = {

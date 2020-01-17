@@ -28,8 +28,10 @@
                                                       required
                                                       type="number"/>
                                     </v-col>
-                                    <v-col cols="12" md="6" lg="3">
+                                    <v-col cols="12">
+                                        <v-card-subtitle class="ml-0 pl-0">Поставьте &lt; 0 для неограниченного использования</v-card-subtitle>
                                         <v-text-field
+                                                style="width: 200px"
                                                 v-model="editedItem.uses"
                                                 :counter="30"
                                                 label="Количество использований"
@@ -47,7 +49,7 @@
                                                       type="number"/>
                                     </v-col>
                                     <v-col cols="12" md="6" lg="4">
-                                        <v-select v-model="editedItem.ammo" item-text="name" :items="items"
+                                        <v-select v-model="editedItem.ammo" multiple chips item-text="name" :items="items"
                                                   label="Патроны(расходники)"/>
                                     </v-col>
                                 </v-row>
@@ -133,7 +135,7 @@
             headers: [
                 {text: "Название", value: "name"},
                 {text: "Цена", value: "cost"},
-                {text: "Тип предмета", value: "damageType"},
+                {text: "Тип предмета", value: "type"},
                 {text: "Кол-во использований", value: "uses"},
                 {text: "Радиус", value: "range"},
                 {text: "Патроны", value: "ammo"},
@@ -150,7 +152,7 @@
                 {text: "ХАРИЗМА", value: "Charisma"},
                 {text: "УДАЧА", value: "Luck"},
                 {text: "ВОСПРИЯТИЕ", value: "Perception"},
-                {text: "", value: "action", sortable: false}
+                {text: "", value: "action", align: "right", sortable: false}
             ],
             items: [],
             itemTypes: [],
@@ -161,15 +163,15 @@
                 type: "",
                 uses: 0,
                 range: 0,
-                ammo: "",
+                ammo: [],
                 MeleeDamage: 0,
                 MagicDamage: 0,
                 RangeDamage: 0,
                 PhysicDef: 0,
+                MagicDef: 0,
                 ElementsDef: 0,
                 Strength: 0,
                 Perception: 0,
-                MagicDef: 0,
                 Endurance: 0,
                 Charisma: 0,
                 Intelligence: 0,
@@ -182,7 +184,7 @@
                 type: "",
                 uses: 0,
                 range: 0,
-                ammo: "",
+                ammo: [],
                 MeleeDamage: 0,
                 MagicDamage: 0,
                 RangeDamage: 0,

@@ -59,7 +59,7 @@
                 {text: "Название", align: "left", value: "name"},
                 {text: "Модификатор", value: "modificator"},
                 {text: "Цвет", value: "color"},
-                {text: "", value: "action", sortable: false}
+                {text: "", value: "action", align: "right", sortable: false}
             ],
             qualities: [],
             editedIndex: -1,

@@ -37,9 +37,9 @@
                 </v-col>
             </v-row>
             <v-card-actions>
-                <v-btn v-if="isMaster" to="/admin">Панель мастера</v-btn>
-                <v-btn v-if="canJoin" @click.stop="join()">Присоединиться</v-btn>
-                <v-btn v-if="existProfile" :to="'/profile/'+profileId">Персонаж</v-btn>
+                <v-btn :loading="processed" v-if="isMaster" to="/admin">Панель мастера</v-btn>
+                <v-btn :loading="processed" v-if="canJoin" @click.stop="join()">Присоединиться</v-btn>
+                <v-btn :loading="processed" v-if="existProfile" :to="'/profile/'+profileId">Персонаж</v-btn>
             </v-card-actions>
         </v-container>
     </v-card>
@@ -58,10 +58,12 @@
             return {
                 master: {displayName: "Неизвестный ёж"},
                 error: null,
+                processed: false,
                 new_game_profile: {
                     game: "main",
+                    gameId: "",
                     name: "Имя персонажа",
-                    sex: "m",
+                    sex: "Муж.",
                     race: "Человек",
                     level: 1,
                     health: 100,
@@ -71,15 +73,22 @@
                     armorDef: 0,
                     magicDef: 0,
                     points: 100,
-                    stats: [
-                        {name: "СИЛА", value: 20},
-                        {name: "ЛОВКОСТЬ", value: 20},
-                        {name: "ИНТЕЛЛЕКТ", value: 20},
-                        {name: "ВЫНОСЛИВОСТЬ", value: 20},
-                        {name: "ХАРИЗМА", value: 20},
-                        {name: "УДАЧА", value: 20},
-                        {name: "ВОСПРИЯТИЕ", value: 20}
-                    ],
+                    gold: 0,
+                    stats: {
+                        MeleeDamage: 0,
+                        MagicDamage: 0,
+                        RangeDamage: 0,
+                        PhysicDef: 0,
+                        MagicDef: 0,
+                        ElementsDef: 0,
+                        Strength: 0,
+                        Perception: 0,
+                        Endurance: 0,
+                        Charisma: 0,
+                        Intelligence: 0,
+                        Agility: 0,
+                        Luck: 0
+                    },
                     items: [],
                     perks: [],
                 }
@@ -146,7 +155,9 @@
                     });
             },
             join() {
+                this.processed = true;
                 let game_ref = this.game_inst.id;
+                this.new_game_profile.gameId = game_ref;
                 let user_id = this.currentUser.uid;
                 let displayName = this.currentUser.displayName;
                 const _this = this;
@@ -159,8 +170,11 @@
                     firebase.firestore().collection("games").doc(game_ref).update({
                         players: firebase.firestore.FieldValue.arrayUnion(user)
                     }).then(() => {
+                        _this.processed = false;
                         _this.$router.push('/profile/' + user.profile);
                     });
+                }).finally(()=> {
+                    _this.processed = false;
                 });
             }
 
