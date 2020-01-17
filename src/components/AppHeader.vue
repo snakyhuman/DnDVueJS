@@ -1,39 +1,23 @@
 <template>
-  <v-app-bar color="white" height="60" app>
+  <v-app-bar color="white" height="60" app >
     <v-app-bar-nav-icon color="primary" to="/home">
       <v-icon>mdi-alpha-n-box</v-icon>
     </v-app-bar-nav-icon>
     <v-toolbar-title>ST.NIKOLAY</v-toolbar-title>
-    <v-spacer></v-spacer>
+    <v-spacer/>
     <v-app-bar-nav-icon to="/game" class="mx-1" icon color="success" x-large>
       <v-icon>mdi-dice-6</v-icon>
     </v-app-bar-nav-icon>
     <v-app-bar-nav-icon v-if="currentUser" to="/game-rules" class="mx-1" icon color="success" x-large>
       <v-icon>mdi-settings</v-icon>
     </v-app-bar-nav-icon>
-
-    <v-dialog
-      v-if="!isAuth"
-      v-model="signUpDialog"
-      persistent
-      max-width="600px"
-      class="fill-height"
-    >
-      <template v-slot:activator="{ on }">
-        <v-app-bar-nav-icon v-on="on" class="mx-1">
-          <v-icon>mdi-account-plus</v-icon>
-        </v-app-bar-nav-icon>
-      </template>
-      <sign-up @closeDialog="signUpDialog = false"></sign-up>
-    </v-dialog>
-
-    <v-dialog v-if="!isAuth" v-model="logInDialog" persistent max-width="600px" class="fill-height">
+    <v-dialog v-if="!isAuth" v-model="logInDialog" persistent max-width="300px" class="fill-height">
       <template v-slot:activator="{ on }">
         <v-app-bar-nav-icon v-on="on" class="mx-1">
           <v-icon>mdi-login</v-icon>
         </v-app-bar-nav-icon>
       </template>
-      <log-in @closeDialog="logInDialog = false"></log-in>
+      <log-in @closeDialog="logInDialog = false"/>
     </v-dialog>
 
     <v-menu v-if="isAuth" bottom transition="slide-y-transition" offset-y left>
@@ -42,7 +26,7 @@
           <v-avatar dark v-on:="on" v-if="currentUser.photoURL">
             <img class="align-center" :src="currentUser.photoURL" :alt="currentUser.displayName" />
           </v-avatar>
-          <v-avatar dark v-on:="on" v-if="!currentUser.photoURL">
+          <v-avatar dark v-on:="on" v-else>
             <v-icon>mdi-account-badge</v-icon>
           </v-avatar>
         </v-app-bar-nav-icon>
@@ -54,7 +38,7 @@
             <v-list-item-avatar v-if="currentUser.photoURL">
               <img :src="currentUser.photoURL" alt="currentUser.displayName" />
             </v-list-item-avatar>
-            <v-list-item-avatar dark v-on:="on" v-if="!currentUser.photoURL">
+            <v-list-item-avatar dark v-on:="on" v-else>
               <v-icon>mdi-account-badge</v-icon>
             </v-list-item-avatar>
             <v-list-item-content>
@@ -64,7 +48,7 @@
           </v-list-item>
         </v-list>
 
-        <v-divider></v-divider>
+        <v-divider/>
 
         <v-list rounded>
           <v-dialog
@@ -102,7 +86,6 @@
 </template>
 
 <script>
-import SignUp from "./SignUp.vue";
 import LogIn from "./LogIn.vue";
 import Profile from "./Profile.vue";
 export default {
@@ -120,7 +103,6 @@ export default {
   data: function() {
     return {
       draver: false,
-      signUpDialog: false,
       logInDialog: false,
       profileDialog: false
     };
@@ -131,10 +113,14 @@ export default {
     }
   },
   components: {
-    SignUp,
     LogIn,
     Profile
+  },
+  beforeUpdate() {
+  },
+  updated() {
   }
+
 };
 </script>
 
