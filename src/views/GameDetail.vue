@@ -64,7 +64,7 @@
                     gameId: "",
                     name: "Имя персонажа",
                     sex: "Муж.",
-                    race: "Человек",
+                    race: "",
                     level: 1,
                     health: 100,
                     magica: 100,

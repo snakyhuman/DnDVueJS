@@ -1,5 +1,5 @@
 <template>
-    <v-data-table :headers="headers" :items="items" sort-by="calories" class="elevation-1">
+    <v-data-table :headers="headers" :items="items" sort-by="calories" class="elevation-1"  @click:row="editItem($event)">
         <template v-slot:top>
             <v-toolbar flat color="white">
                 <v-toolbar-title>Предметы</v-toolbar-title>
@@ -24,7 +24,7 @@
                                         <v-select v-model="editedItem.type" :items="itemTypes" label="Тип предмета"/>
                                     </v-col>
                                     <v-col cols="12" md="6" lg="3">
-                                        <v-text-field v-model="editedItem.cost" :counter="30" label="Цена предмета"
+                                        <v-text-field v-model="editedItem.cost" label="Цена предмета"
                                                       required
                                                       type="number"/>
                                     </v-col>
@@ -33,7 +33,6 @@
                                         <v-text-field
                                                 style="width: 200px"
                                                 v-model="editedItem.uses"
-                                                :counter="30"
                                                 label="Количество использований"
                                                 required
                                                 type="number"
@@ -45,7 +44,7 @@
                                         <p>Свойства оружия</p>
                                     </v-col>
                                     <v-col cols="12" md="6" lg="4">
-                                        <v-text-field v-model="editedItem.range" :counter="30" label="Радиус" required
+                                        <v-text-field v-model="editedItem.range" label="Радиус" required
                                                       type="number"/>
                                     </v-col>
                                     <v-col cols="12" md="6" lg="4">
@@ -115,7 +114,7 @@
                 </v-dialog>
             </v-toolbar>
         </template>
-        <template v-slot:item.action="{ item }">
+        <template v-slot:item.action="{ item }" @click="editItem(item)">
             <v-icon class="mr-2" @click="editItem(item)">mdi-pencil</v-icon>
             <v-icon @click="deleteItem(item)" color="red">mdi-delete</v-icon>
         </template>

@@ -40,7 +40,7 @@
         </v-row>
       </v-col>
     </v-row>
-    <v-btn absolute dark fab top right small color="red darken-2" @click="deleteGame()" v-if="isMaster">
+    <v-btn absolute icon top right small  @click="deleteGame()" v-if="isMaster">
       <v-icon>mdi-close</v-icon>
     </v-btn>
     <v-dialog v-model="dialog" width="1000">

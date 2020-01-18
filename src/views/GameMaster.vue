@@ -30,9 +30,9 @@
             <v-item-group>
                 <v-container class="px-0">
                     <v-row>
-                        <v-col cols="12" md="6">
+                        <v-col v-show="user" cols="12" md="6">
                             <!-- New game -->
-                            <v-item v-if="isAuth">
+                            <v-item>
                                 <v-card
                                         elevation="5"
                                         class="overflow-hidden elevation-10 d-flex align-center"
@@ -72,21 +72,18 @@
                 filter: [],
                 newGameDialog: false,
                 games: [],
-                search: ""
+                search: "",
+                user : {}
             };
         },
         computed: {
-            isAuth() {
-                return this.$store.getters.get_isAuth;
-            },
-            filteredItems () {
-                if(this.search && this.search !== "") {
+            filteredItems() {
+                if (this.search && this.search !== "") {
                     let query = this.search;
-                    return this.games.filter((x)=> {
+                    return this.games.filter((x) => {
                         return x.data().name.toLowerCase().indexOf(query.toLowerCase()) !== -1
                     })
-                }
-                else {
+                } else {
                     return this.games;
                 }
             }
@@ -97,14 +94,16 @@
             }
         },
         created() {
-            firebase.firestore().collection('games').onSnapshot((data) => {
-                    this.games = [];
+          firebase.firestore().collection('games').onSnapshot((data) => {
+                this.games = [];
                 data.forEach(item => {
                     this.games.push(item);
                 });
             });
+            firebase.auth().onAuthStateChanged(()=>{
+                this.user = firebase.auth().currentUser;
+            });
         },
-
         components: {
             GameCard,
             NewGame

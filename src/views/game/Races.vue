@@ -1,5 +1,5 @@
 <template>
-    <v-data-table :headers="headers" :items="races" sort-by="calories" class="elevation-1 ma-3">
+    <v-data-table :headers="headers" :items="races" sort-by="calories" class="elevation-1 ma-3" @click:row="editItem($event)">
         <template v-slot:top>
             <v-toolbar flat color="white">
                 <v-toolbar-title>Расы</v-toolbar-title>
@@ -128,7 +128,7 @@
                 Perception: 10,
                 Endurance: 10,
                 Charisma: 10,
-                Intelligence: 10,
+                Intelligence:10,
                 Agility: 10,
                 Luck: 10
             },
@@ -145,7 +145,7 @@
                 Perception: 10,
                 Endurance: 10,
                 Charisma: 10,
-                Intelligence: 10,
+                Intelligence:10,
                 Agility: 10,
                 Luck: 10
             }

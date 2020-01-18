@@ -5,25 +5,19 @@
             <v-subheader class="mt-0 pt-0">Зарегистрировать новую партию</v-subheader>
             <v-row>
                 <v-col cols="12" xs="12" sm="6" lg="6">
-                    <v-img
-                            :src="imageURL"
-                            class="new-game--image white--text align-end pl-3 pt-3 mb-3"
-                            lazy-src="../assets/imagePlaceholder.jpg"
-                            gradient="to bottom, rgba(0,0,0,.2), rgba(0,0,0,.8)"
-                            height="250"
-                    >
-                        <v-file-input
-                                dark
-                                show-size
-                                counter
-                                prepend-icon="mdi-camera"
-                                accept="image/png, image/jpeg, image/bmp"
-                                label="Выбрать изображение"
-                                flat
-                                v-model="image"
-                        />
-                        <v-progress-linear height="45" :value="uploading"/>
-                    </v-img>
+                    <v-card @click="$refs.file.click()">
+                        <input @change="imageChanged" accept="image/png, image/jpeg, image/bmp" type="file" ref="file"
+                               style="visibility: hidden" class="v-btn--absolute"/>
+                        <v-img
+                                :src="imageURL"
+                                class="white--text align-end mb-3"
+                                lazy-src="../assets/imagePlaceholder.jpg"
+                                gradient="to bottom, rgba(0,0,0,.2), rgba(0,0,0,.8)"
+                                height="250"
+                        >
+                        </v-img>
+                        <v-progress-linear striped absolute bottom v-show="uploading > 0" height="25" :value="uploading"/>
+                    </v-card>
                     <v-text-field
                             label="Название"
                             v-model="newGame.name"
@@ -148,6 +142,13 @@
                     invites: false,
                     master: null,
                     maxPlayers: 4,
+                    trade: {
+                        trademod: false,
+                        items: [],
+                        modificatorBuy: 1,
+                        modificatorSell: 1
+                    },
+                    messages: [],
                     name: "Новая партия",
                     players: []
                 },
@@ -164,6 +165,12 @@
             };
         },
         methods: {
+            imageChanged(e) {
+                var files = e.target.files || e.dataTransfer.files;
+                if (!files.length)
+                    return;
+                this.image = files[0];
+            },
             closeDialog() {
                 this.$emit("closeDialog");
             },

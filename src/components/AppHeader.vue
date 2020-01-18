@@ -11,7 +11,7 @@
     <v-app-bar-nav-icon v-if="currentUser" to="/game-rules" class="mx-1" icon color="success" x-large>
       <v-icon>mdi-settings</v-icon>
     </v-app-bar-nav-icon>
-    <v-dialog v-if="!isAuth" v-model="logInDialog" persistent max-width="300px" class="fill-height">
+    <v-dialog v-if="!isAuth"  v-model="logInDialog" persistent max-width="300px" class="fill-height">
       <template v-slot:activator="{ on }">
         <v-app-bar-nav-icon v-on="on" class="mx-1">
           <v-icon>mdi-login</v-icon>

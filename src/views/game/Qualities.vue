@@ -1,5 +1,5 @@
 <template>
-    <v-data-table :headers="headers" :items="qualities" sort-by="calories" class="elevation-1 ma-3">
+    <v-data-table :headers="headers" :items="qualities" sort-by="calories" class="elevation-1 ma-3"  @click:row="editItem($event)">
         <template v-slot:top>
             <v-toolbar flat color="white">
                 <v-toolbar-title>Качество предметов</v-toolbar-title>

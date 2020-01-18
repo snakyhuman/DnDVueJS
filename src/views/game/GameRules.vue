@@ -1,7 +1,7 @@
 <template>
-    <v-container fluid>
-        <v-card :loading="processing">
-            <v-tabs v-model="tabs" background-color="transparent" right show-arrows>
+    <v-container  fluid class="ma-0 pa-0  fill-height">
+        <v-card class="ma-0 pa-0 fill-height" flat :loading="processing">
+            <v-tabs class="pa-0 ma-0" v-model="tabs" background-color="transparent" right show-arrows>
                 <v-tab>Предметы</v-tab>
                 <v-tab>Перки</v-tab>
                 <v-tab>Дополнительно</v-tab>

@@ -1,5 +1,5 @@
 <template>
-    <v-data-table :headers="headers" :items="perks" sort-by="calories" class="elevation-1 ma-3">
+    <v-data-table :headers="headers" :items="perks" sort-by="calories" class="elevation-1 ma-3"  @click:row="editItem($event)">
         <template v-slot:top>
             <v-toolbar flat color="white">
                 <v-toolbar-title>Перки</v-toolbar-title>
@@ -126,25 +126,25 @@
             editedIndex: -1,
             editedItem: {
                 name: "",
-                cost: 25,
+                cost: 0,
                 description: "",
                 MeleeDamage: 0,
                 MagicDamage: 0,
                 RangeDamage: 0,
                 PhysicDef: 0,
                 ElementsDef: 0,
-                Strength: 10,
-                Perception: 10,
+                Strength: 0,
+                Perception: 0,
                 MagicDef: 0,
-                Endurance: 10,
-                Charisma: 10,
-                Intelligence: 10,
-                Agility: 10,
-                Luck: 10
+                Endurance: 0,
+                Charisma: 0,
+                Intelligence: 0,
+                Agility: 0,
+                Luck: 0
             },
             defaultItem: {
                 name: "",
-                cost: 25,
+                cost: 0,
                 description: "",
                 MeleeDamage: 0,
                 MagicDamage: 0,
@@ -152,13 +152,13 @@
                 PhysicDef: 0,
                 MagicDef: 0,
                 ElementsDef: 0,
-                Strength: 10,
-                Perception: 10,
-                Endurance: 10,
-                Charisma: 10,
-                Intelligence: 10,
-                Agility: 10,
-                Luck: 10
+                Strength: 0,
+                Perception: 0,
+                Endurance: 0,
+                Charisma: 0,
+                Intelligence: 0,
+                Agility: 0,
+                Luck: 0
             }
         }),
         computed: {

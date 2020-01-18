@@ -34,6 +34,10 @@ export default new Router({
             component: GameRules
         },
         {
+          path: '*',
+          redirect: GameMaser
+        },
+        {
             path: '/about',
             name: 'about',
             // route level code-splitting
