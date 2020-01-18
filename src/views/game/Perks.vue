@@ -1,5 +1,6 @@
 <template>
-    <v-data-table :headers="headers" :items="perks" sort-by="calories" class="elevation-1 ma-3"  @click:row="editItem($event)">
+    <v-data-table :headers="headers" :items="perks" sort-by="calories" class="elevation-1 ma-3"
+                  @click:row="editItem($event)">
         <template v-slot:top>
             <v-toolbar flat color="white">
                 <v-toolbar-title>Перки</v-toolbar-title>
@@ -120,12 +121,13 @@
                 {text: "ХАРИЗМА", value: "Charisma"},
                 {text: "УДАЧА", value: "Luck"},
                 {text: "ВОСПРИЯТИЕ", value: "Perception"},
-                {text: "", value: "action", align: "right",  sortable: false}
+                {text: "", value: "action", align: "right", sortable: false}
             ],
             perks: [],
             editedIndex: -1,
             editedItem: {
                 name: "",
+                id: "",
                 cost: 0,
                 description: "",
                 MeleeDamage: 0,
@@ -145,6 +147,7 @@
             defaultItem: {
                 name: "",
                 cost: 0,
+                id: "",
                 description: "",
                 MeleeDamage: 0,
                 MagicDamage: 0,
@@ -159,7 +162,8 @@
                 Intelligence: 0,
                 Agility: 0,
                 Luck: 0
-            }
+            },
+            originalItem: null
         }),
         computed: {
             formTitle() {
@@ -172,9 +176,16 @@
             }
         },
         methods: {
+            uuidv4() {
+                return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                    var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+                    return v.toString(16);
+                });
+            },
             editItem(item) {
                 this.editedIndex = this.perks.indexOf(item);
                 this.editedItem = Object.assign({}, item);
+                this.originalItem = item;
                 this.dialog = true;
             },
             deleteItem(item) {
@@ -185,8 +196,10 @@
             },
             close() {
                 this.dialog = false;
+
                 setTimeout(() => {
                     this.editedItem = Object.assign({}, this.defaultItem);
+                    this.originalItem = null;
                     this.editedIndex = -1;
                 }, 300);
             },
@@ -194,6 +207,7 @@
                 if (this.editedIndex > -1) {
                     Object.assign(this.perks[this.editedIndex], this.editedItem);
                 } else {
+                    this.editedItem.id = this.uuidv4();
                     this.perks.push(this.editedItem);
                 }
                 firebase.firestore().collection('gamerules').doc('main').update({
