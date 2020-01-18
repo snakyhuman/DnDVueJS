@@ -29,6 +29,7 @@
                                             item-text="name"
                                             return-object
                                             :disabled="isEdit"
+                                            @change="saveProfile()"
                                             dense
                                             label="Раса"/>
                                     <v-spacer/>
@@ -126,17 +127,12 @@
                     </v-list-item>
                     <v-list-item>
                         <v-progress-linear color="green darken-4" value="20" height="25" dark>
-                            ЗДОРОВЬЕ {{player.health}}/ {{player.level*1000}}
-                        </v-progress-linear>
-                    </v-list-item>
-                    <v-list-item>
-                        <v-progress-linear color="blue darken-4" value="20" height="25" dark>
-                            МАГИЯ: {{player.magica}}/ {{player.level*1000}}
+                            ЗДОРОВЬЕ {{player.health}}/ {{max_health}}
                         </v-progress-linear>
                     </v-list-item>
                     <v-list-item>
                         <v-progress-linear color="brown" value="20" height="25" dark>
-                            ДЕЙСТВИЯ: {{player.action}}/{{player.level*1000}}
+                            ДЕЙСТВИЯ: {{player.action}}/{{max_action}}
                         </v-progress-linear>
                     </v-list-item>
 
@@ -181,7 +177,7 @@
                             <v-icon left>mdi-bag-personal</v-icon>
                             Инвентарь
                         </v-card-title>
-                        <v-card-subtitle>Золото {{this.player.gold}}
+                        <v-card-subtitle>Золото {{Math.round(this.player.gold * 100) / 100}}
                             <v-icon color="#FFD700" right>mdi-coins</v-icon>
                         </v-card-subtitle>
                         <v-item-group>
@@ -261,8 +257,9 @@
                                                         <v-btn icon @click="sellItem(item)">
                                                             <v-icon>mdi-currency-usd</v-icon>
                                                         </v-btn>
-                                                        <v-btn icon @click="item.weared = !item.weared">
-                                                            <v-icon :color="item.weared ? 'green' : 'grey'">{{item.weared ? 'mdi-tshirt-crew'
+                                                        <v-btn icon @click="wear(item)">
+                                                            <v-icon :color="item.weared ? 'green' : 'grey'">
+                                                                {{item.weared ? 'mdi-tshirt-crew'
                                                                 :'mdi-tshirt-crew-outline' }}
                                                             </v-icon>
                                                         </v-btn>
@@ -274,7 +271,7 @@
                                                     <v-card-subtitle class="pb-0">{{item.type}},
                                                         {{item.quality.name}}
                                                         <v-spacer/>
-                                                        {{item.cost * item.quality.modificator}}
+                                                        {{Math.round(item.cost * item.quality.modificator * 100) / 100}}
                                                         <v-icon color="#FFD700" right>mdi-coins</v-icon>
                                                     </v-card-subtitle>
                                                     <v-card-subtitle v-if="item.uses > 0"
@@ -287,59 +284,59 @@
                                                         <v-chip :color="randDarkColor()"
                                                                 v-if="item.MeleeDamage > 0">
                                                             Урон (физич.)
-                                                            <v-avatar right>{{item.MeleeDamage}}</v-avatar>
+                                                            <v-avatar right>{{Math.round(+item.MeleeDamage * +item.quality.modificator)}}</v-avatar>
                                                         </v-chip>
                                                         <v-chip :color="randDarkColor()"
                                                                 v-if="item.MagicDamage > 0">
                                                             Урон (магич.)
-                                                            <v-avatar right>{{item.MagicDamage}}</v-avatar>
+                                                            <v-avatar right>{{Math.round(+item.MagicDamage * +item.quality.modificator)}}</v-avatar>
                                                         </v-chip>
                                                         <v-chip :color="randDarkColor()"
                                                                 v-if="item.RangeDamage > 0">
                                                             Урон (дальн.)
-                                                            <v-avatar right>{{item.RangeDamage}}</v-avatar>
+                                                            <v-avatar right>{{Math.round(+item.RangeDamage * +item.quality.modificator)}}</v-avatar>
                                                         </v-chip>
                                                         <v-chip :color="randDarkColor()" v-if="item.PhysicDef > 0">
                                                             Защита (физич.)
-                                                            <v-avatar right>{{item.PhysicDef}}</v-avatar>
+                                                            <v-avatar right>{{Math.round(+item.PhysicDef * +item.quality.modificator)}}</v-avatar>
                                                         </v-chip>
                                                         <v-chip :color="randDarkColor()" v-if="item.MagicDef > 0">
                                                             Защита (магич.)
-                                                            <v-avatar right>{{item.MagicDef}}</v-avatar>
+                                                            <v-avatar right>{{Math.round(+item.MagicDef * +item.quality.modificator)}}</v-avatar>
                                                         </v-chip>
                                                         <v-chip :color="randDarkColor()"
                                                                 v-if="item.ElementsDef > 0">
                                                             Защита (стихии)
-                                                            <v-avatar right>{{item.ElementsDef}}</v-avatar>
+                                                            <v-avatar right>{{Math.round(+item.ElementsDef * +item.quality.modificator)}}</v-avatar>
                                                         </v-chip>
                                                         <v-chip :color="randDarkColor()" v-if="item.Strength > 0">
                                                             Сила
-                                                            <v-avatar right>{{item.Strength}}</v-avatar>
+                                                            <v-avatar right>{{Math.round(+item.Strength * +item.quality.modificator)}}</v-avatar>
                                                         </v-chip>
                                                         <v-chip :color="randDarkColor()"
                                                                 v-if="item.Perception > 0">
                                                             Восприятие
-                                                            <v-avatar right>{{item.Perception}}</v-avatar>
+                                                            <v-avatar right>{{Math.round(+item.Perception * +item.quality.modificator)}}</v-avatar>
                                                         </v-chip>
                                                         <v-chip :color="randDarkColor()" v-if="item.Endurance > 0">
                                                             Выносливость
-                                                            <v-avatar right>{{item.Endurance}}</v-avatar>
+                                                            <v-avatar right>{{Math.round(+item.Endurance * +item.quality.modificator)}}</v-avatar>
                                                         </v-chip>
                                                         <v-chip :color="randDarkColor()" v-if="item.Charisma > 0">
                                                             Харизма
-                                                            <v-avatar right>{{item.Charisma}}</v-avatar>
+                                                            <v-avatar right>{{Math.round(+item.Charisma * +item.quality.modificator)}}</v-avatar>
                                                         </v-chip>
                                                         <v-chip :color="randDarkColor()"
                                                                 v-if="item.Intelligence > 0">
                                                             Интеллект
-                                                            <v-avatar right>{{item.Intelligence}}</v-avatar>
+                                                            <v-avatar right>{{Math.round(+item.Intelligence * +item.quality.modificator)}}</v-avatar>
                                                         </v-chip>
                                                         <v-chip :color="randDarkColor()" v-if="item.Agility > 0">
                                                             Ловкость
-                                                            <v-avatar right>{{item.Agility}}</v-avatar>
+                                                            <v-avatar right>{{Math.round(+item.Agility * +item.quality.modificator)}}</v-avatar>
                                                         </v-chip>
                                                         <v-chip :color="randDarkColor()" v-if="item.Luck > 0">Удача
-                                                            <v-avatar right>{{item.Luck}}</v-avatar>
+                                                            <v-avatar right>{{Math.round(+item.Luck * +item.quality.modificator)}}</v-avatar>
                                                         </v-chip>
                                                     </v-chip-group>
                                                 </v-card>
@@ -581,43 +578,43 @@
             result_stats() {
                 let p = this.player;
                 let MeleeDamageSum = p.items.filter(i => i.weared).reduce((sum, current) => {
-                    return sum + +current.item.MeleeDamage;
+                    return sum + Math.round(+current.item.MeleeDamage * +current.item.quality.modificator);
                 }, 0);
                 let MagicDamageSum = p.items.filter(i => i.weared).reduce((sum, current) => {
-                    return sum + +current.item.MagicDamage;
+                    return sum + Math.round(+current.item.MagicDamage * +current.item.quality.modificator);
                 }, 0);
                 let RangeDamageSum = p.items.filter(i => i.weared).reduce((sum, current) => {
-                    return sum + +current.item.RangeDamage;
+                    return sum + Math.round(+current.item.RangeDamage * +current.item.quality.modificator);
                 }, 0);
                 let PhysicDefSum = p.items.filter(i => i.weared).reduce((sum, current) => {
-                    return sum + +current.item.PhysicDef;
+                    return sum + Math.round(+current.item.PhysicDef * +current.item.quality.modificator);
                 }, 0);
                 let MagicDefSum = p.items.filter(i => i.weared).reduce((sum, current) => {
-                    return sum + +current.item.MagicDef;
+                    return sum + Math.round(+current.item.MagicDef * +current.item.quality.modificator);
                 }, 0);
                 let ElementsDefSum = p.items.filter(i => i.weared).reduce((sum, current) => {
-                    return sum + +current.item.ElementsDef;
+                    return sum + Math.round(+current.item.ElementsDef * +current.item.quality.modificator);
                 }, 0);
                 let StrengthSum = p.items.filter(i => i.weared).reduce((sum, current) => {
-                    return sum + +current.item.Strength;
+                    return sum + Math.round(+current.item.Strength * +current.item.quality.modificator);
                 }, 0);
                 let PerceptionSum = p.items.filter(i => i.weared).reduce((sum, current) => {
-                    return sum + +current.item.Perception;
+                    return sum + Math.round(+current.item.Perception * +current.item.quality.modificator);
                 }, 0);
                 let EnduranceSum = p.items.filter(i => i.weared).reduce((sum, current) => {
-                    return sum + +current.item.Endurance;
+                    return sum + Math.round(+current.item.Endurance * +current.item.quality.modificator);
                 }, 0);
                 let CharismaSum = p.items.filter(i => i.weared).reduce((sum, current) => {
-                    return sum + +current.item.Charisma;
+                    return sum + Math.round(+current.item.Charisma * +current.item.quality.modificator);
                 }, 0);
                 let IntelligenceSum = p.items.filter(i => i.weared).reduce((sum, current) => {
-                    return sum + +current.item.Intelligence;
+                    return sum + Math.round(+current.item.Intelligence * +current.item.quality.modificator);
                 }, 0);
                 let AgilitySum = p.items.filter(i => i.weared).reduce((sum, current) => {
-                    return sum + +current.item.Agility;
+                    return sum + Math.round(+current.item.Agility * +current.item.quality.modificator);
                 }, 0);
                 let LuckSum = p.items.filter(i => i.weared).reduce((sum, current) => {
-                    return sum + +current.item.Luck;
+                    return sum + Math.round(+current.item.Luck * +current.item.quality.modificator);
                 }, 0);
 
                 let MeleeDamagePerksSum = this.playerPerks.reduce((sum, current) => {
@@ -675,6 +672,14 @@
                     Luck: p.stats.Luck + +p.race.Luck + +LuckSum + +LuckPerksSum,
                 });
             },
+            max_health() {
+              let res = this.result_stats;
+                return Math.round(15 + 2 * +res.Endurance + +res.Strength + 2*this.player.level +res.Endurance/2);
+            },
+            max_action() {
+                let res = this.result_stats;
+                return Math.round(5 + +res.Agility /4);
+            },
             result_xp() {
                 let p = this.player;
                 return Math.pow(p.level, 2) * 200;
@@ -704,9 +709,19 @@
             }
         },
         methods: {
+            wear(item) {
+                if (item.weared) {
+                    item.weared = false;
+                }
+                else {
+                    if(item.type == "Оружие") {
+
+                    }
+                }
+            },
             addItem() {
                 let item = this.newItem;
-                if (item.item && item.quality) {
+                if (item.item.name && item.quality.name) {
                     item = Object.assign({}, item.item);
                     item.count = this.newItem.count;
                     item.weared = this.newItem.weared;
