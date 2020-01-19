@@ -1,6 +1,6 @@
 <template>
     <v-container>
-        <v-card>
+        <v-card v-if="player && game && rules" :disabled="player.health<0">
             <v-btn :loading="isEdit"
                    block
                    depressed
@@ -15,17 +15,19 @@
                         <v-list-item-content>
                             <v-card outlined min-height="30" class="pa-1">
                                 <v-card-actions>
-                                    <v-text-field dense label="Имя персонажа" :disabled="isEdit" v-model="player.name"/>
+                                    <v-text-field @change="saveProfile()" dense label="Имя персонажа" :disabled="isEdit"
+                                                  v-model="player.name"/>
                                 </v-card-actions>
                                 <v-card-actions>
-                                    <v-select :value="player.sex" :items="['Муж.', 'Жен.' ]" :disabled="isEdit" dense
+                                    <v-select @change="saveProfile()" :value="player.sex" :items="['Муж.', 'Жен.' ]"
+                                              :disabled="isEdit" dense
                                               label="Пол персонажа"/>
                                 </v-card-actions>
                                 <v-card-actions>
                                     <v-select
                                             v-model="player.race"
-                                            :items="gameData.races"
-                                            :item-value="gameData.races"
+                                            :items="rules.races"
+                                            :item-value="rules.races"
                                             item-text="name"
                                             return-object
                                             :disabled="isEdit"
@@ -82,7 +84,7 @@
                         </v-list-item-content>
                     </v-list-item>
                     <!--Admin panel?-->
-                    <div>
+                    <div v-if="isGameMaster">
                         <v-list-item>
                             <v-text-field
                                     v-model="giveXpCount"
@@ -176,6 +178,10 @@
                         <v-card-title>
                             <v-icon left>mdi-bag-personal</v-icon>
                             Инвентарь
+                            <v-spacer/>
+                            <v-btn outlined color="green">
+                                Магазин
+                            </v-btn>
                         </v-card-title>
                         <v-card-subtitle>Золото {{Math.round(this.player.gold * 100) / 100}}
                             <v-icon color="#FFD700" right>mdi-coins</v-icon>
@@ -183,7 +189,7 @@
                         <v-item-group>
                             <v-container>
                                 <v-row dense>
-                                    <v-col cols="12">
+                                    <v-col cols="12" v-if="isGameMaster">
                                         <v-item v-slot:default="{ active, toggle }">
                                             <v-card class="pa-3" :color="newItem.quality.color"
                                                     :dark="!!newItem.quality.color">
@@ -191,11 +197,11 @@
                                                 </v-card-title>
                                                 <v-select v-model="newItem.quality" item-text="name"
                                                           label="Качество предмета"
-                                                          :items="gameData.qualities" return-object/>
+                                                          :items="rules.qualities" return-object/>
                                                 <v-text-field v-model="newItem.count" type="number"
                                                               label="Количество"/>
                                                 <v-autocomplete v-model="newItem.item"
-                                                                :items="gameData.items" item-text="name"
+                                                                :items="rules.items" item-text="name"
                                                                 return-object label="Предмет"/>
                                                 <v-card-actions>
                                                     <v-spacer/>
@@ -245,7 +251,7 @@
                                            cols="12">
                                         <v-item v-slot:default="{ active, toggle }">
                                             <div :style="'box-shadow: -5px 0px 0px 0px ' +item.quality.color+';'">
-                                                <v-card tile @click="toggle">
+                                                <v-card :color="item.weared ? 'green' : 'white'" tile @click="toggle">
                                                     <v-card-title>
                                                         <v-icon left>mdi-cube</v-icon>
                                                         {{item.name}}
@@ -258,7 +264,7 @@
                                                             <v-icon>mdi-currency-usd</v-icon>
                                                         </v-btn>
                                                         <v-btn icon @click="wear(item)">
-                                                            <v-icon :color="item.weared ? 'green' : 'grey'">
+                                                            <v-icon :color="item.weared ? 'white' : 'grey'">
                                                                 {{item.weared ? 'mdi-tshirt-crew'
                                                                 :'mdi-tshirt-crew-outline' }}
                                                             </v-icon>
@@ -284,59 +290,85 @@
                                                         <v-chip :color="randDarkColor()"
                                                                 v-if="item.MeleeDamage > 0">
                                                             Урон (физич.)
-                                                            <v-avatar right>{{Math.round(+item.MeleeDamage * +item.quality.modificator)}}</v-avatar>
+                                                            <v-avatar right>{{Math.round(+item.MeleeDamage *
+                                                                +item.quality.modificator)}}
+                                                            </v-avatar>
                                                         </v-chip>
                                                         <v-chip :color="randDarkColor()"
                                                                 v-if="item.MagicDamage > 0">
                                                             Урон (магич.)
-                                                            <v-avatar right>{{Math.round(+item.MagicDamage * +item.quality.modificator)}}</v-avatar>
+                                                            <v-avatar right>{{Math.round(+item.MagicDamage *
+                                                                +item.quality.modificator)}}
+                                                            </v-avatar>
                                                         </v-chip>
                                                         <v-chip :color="randDarkColor()"
                                                                 v-if="item.RangeDamage > 0">
                                                             Урон (дальн.)
-                                                            <v-avatar right>{{Math.round(+item.RangeDamage * +item.quality.modificator)}}</v-avatar>
+                                                            <v-avatar right>{{Math.round(+item.RangeDamage *
+                                                                +item.quality.modificator)}}
+                                                            </v-avatar>
                                                         </v-chip>
                                                         <v-chip :color="randDarkColor()" v-if="item.PhysicDef > 0">
                                                             Защита (физич.)
-                                                            <v-avatar right>{{Math.round(+item.PhysicDef * +item.quality.modificator)}}</v-avatar>
+                                                            <v-avatar right>{{Math.round(+item.PhysicDef *
+                                                                +item.quality.modificator)}}
+                                                            </v-avatar>
                                                         </v-chip>
                                                         <v-chip :color="randDarkColor()" v-if="item.MagicDef > 0">
                                                             Защита (магич.)
-                                                            <v-avatar right>{{Math.round(+item.MagicDef * +item.quality.modificator)}}</v-avatar>
+                                                            <v-avatar right>{{Math.round(+item.MagicDef *
+                                                                +item.quality.modificator)}}
+                                                            </v-avatar>
                                                         </v-chip>
                                                         <v-chip :color="randDarkColor()"
                                                                 v-if="item.ElementsDef > 0">
                                                             Защита (стихии)
-                                                            <v-avatar right>{{Math.round(+item.ElementsDef * +item.quality.modificator)}}</v-avatar>
+                                                            <v-avatar right>{{Math.round(+item.ElementsDef *
+                                                                +item.quality.modificator)}}
+                                                            </v-avatar>
                                                         </v-chip>
                                                         <v-chip :color="randDarkColor()" v-if="item.Strength > 0">
                                                             Сила
-                                                            <v-avatar right>{{Math.round(+item.Strength * +item.quality.modificator)}}</v-avatar>
+                                                            <v-avatar right>{{Math.round(+item.Strength *
+                                                                +item.quality.modificator)}}
+                                                            </v-avatar>
                                                         </v-chip>
                                                         <v-chip :color="randDarkColor()"
                                                                 v-if="item.Perception > 0">
                                                             Восприятие
-                                                            <v-avatar right>{{Math.round(+item.Perception * +item.quality.modificator)}}</v-avatar>
+                                                            <v-avatar right>{{Math.round(+item.Perception *
+                                                                +item.quality.modificator)}}
+                                                            </v-avatar>
                                                         </v-chip>
                                                         <v-chip :color="randDarkColor()" v-if="item.Endurance > 0">
                                                             Выносливость
-                                                            <v-avatar right>{{Math.round(+item.Endurance * +item.quality.modificator)}}</v-avatar>
+                                                            <v-avatar right>{{Math.round(+item.Endurance *
+                                                                +item.quality.modificator)}}
+                                                            </v-avatar>
                                                         </v-chip>
                                                         <v-chip :color="randDarkColor()" v-if="item.Charisma > 0">
                                                             Харизма
-                                                            <v-avatar right>{{Math.round(+item.Charisma * +item.quality.modificator)}}</v-avatar>
+                                                            <v-avatar right>{{Math.round(+item.Charisma *
+                                                                +item.quality.modificator)}}
+                                                            </v-avatar>
                                                         </v-chip>
                                                         <v-chip :color="randDarkColor()"
                                                                 v-if="item.Intelligence > 0">
                                                             Интеллект
-                                                            <v-avatar right>{{Math.round(+item.Intelligence * +item.quality.modificator)}}</v-avatar>
+                                                            <v-avatar right>{{Math.round(+item.Intelligence *
+                                                                +item.quality.modificator)}}
+                                                            </v-avatar>
                                                         </v-chip>
                                                         <v-chip :color="randDarkColor()" v-if="item.Agility > 0">
                                                             Ловкость
-                                                            <v-avatar right>{{Math.round(+item.Agility * +item.quality.modificator)}}</v-avatar>
+                                                            <v-avatar right>{{Math.round(+item.Agility *
+                                                                +item.quality.modificator)}}
+                                                            </v-avatar>
                                                         </v-chip>
                                                         <v-chip :color="randDarkColor()" v-if="item.Luck > 0">Удача
-                                                            <v-avatar right>{{Math.round(+item.Luck * +item.quality.modificator)}}</v-avatar>
+                                                            <v-avatar right>{{Math.round(+item.Luck *
+                                                                +item.quality.modificator)}}
+                                                            </v-avatar>
                                                         </v-chip>
                                                     </v-chip-group>
                                                 </v-card>
@@ -360,7 +392,7 @@
                         <v-list-item-title class="green--text text-left ">({{player.stats.Strength}})
                         </v-list-item-title>
                         <v-btn icon :disabled="player.points < 25"
-                               @click="(player.stats.Strength ++) && (player.points-=25) && updateStats()">
+                               @click="updateStats('Strength')">
                             <v-icon>mdi-plus</v-icon>
                         </v-btn>
                     </v-list-item>
@@ -370,7 +402,7 @@
                         <v-list-item-title class="green--text text-left ">({{player.stats.Perception}})
                         </v-list-item-title>
                         <v-btn icon :disabled="player.points < 25"
-                               @click="(player.stats.Perception ++) && (player.points-=25) && updateStats()">
+                               @click="updateStats('Perception')">
                             <v-icon>mdi-plus</v-icon>
                         </v-btn>
                     </v-list-item>
@@ -380,7 +412,7 @@
                         <v-list-item-title class="green--text text-left ">({{player.stats.Endurance}})
                         </v-list-item-title>
                         <v-btn icon :disabled="player.points < 25"
-                               @click="(player.stats.Endurance ++) && (player.points-=25) && updateStats()">
+                               @click="updateStats('Endurance')">
                             <v-icon>mdi-plus</v-icon>
                         </v-btn>
                     </v-list-item>
@@ -390,7 +422,7 @@
                         <v-list-item-title class="green--text text-left ">({{player.stats.Charisma}})
                         </v-list-item-title>
                         <v-btn icon :disabled="player.points < 25"
-                               @click="(player.stats.Charisma ++) && (player.points-=25) && updateStats()">
+                               @click="updateStats('Charisma')">
                             <v-icon>mdi-plus</v-icon>
                         </v-btn>
                     </v-list-item>
@@ -400,7 +432,7 @@
                         <v-list-item-title class="green--text text-left ">({{player.stats.Intelligence}})
                         </v-list-item-title>
                         <v-btn icon :disabled="player.points < 25"
-                               @click="(player.stats.Intelligence ++) && (player.points-=25) && updateStats()">
+                               @click="updateStats('Intelligence')">
                             <v-icon>mdi-plus</v-icon>
                         </v-btn>
                     </v-list-item>
@@ -409,7 +441,7 @@
                         <v-list-item-title class="text-center">{{result_stats.Agility}}</v-list-item-title>
                         <v-list-item-title class="green--text text-left ">({{player.stats.Agility}})</v-list-item-title>
                         <v-btn icon :disabled="player.points < 25"
-                               @click="(player.stats.Agility ++) && (player.points-=25) && updateStats()">
+                               @click="updateStats('Agility')">
                             <v-icon>mdi-plus</v-icon>
                         </v-btn>
                     </v-list-item>
@@ -418,7 +450,7 @@
                         <v-list-item-title class="text-center">{{result_stats.Luck}}</v-list-item-title>
                         <v-list-item-title class="green--text text-left ">({{player.stats.Luck}})</v-list-item-title>
                         <v-btn icon :disabled="player.points < 25"
-                               @click="(player.stats.Luck ++) && (player.points-=25) && updateStats()">
+                               @click="updateStats('Luck')">
                             <v-icon>mdi-plus</v-icon>
                         </v-btn>
                     </v-list-item>
@@ -544,6 +576,12 @@
             <v-row style="height:300px"/>
             <v-row class="ma-0"/>
         </v-card>
+        <v-overlay v-else light absolute opacity="50" dark>
+            <v-progress-circular indeterminate size="150">
+                <v-card-subtitle>Идет загрузка</v-card-subtitle>
+            </v-progress-circular>
+        </v-overlay>
+
     </v-container>
 </template>
 
@@ -552,12 +590,16 @@
 
     export default {
         name: "player-profile",
+        props: {
+            profileId: String,
+        },
         data() {
             return {
                 addItemDialog: false,
                 isEdit: false,
-                player: {},
-                gameData: {},
+                player: null,
+                rules: null,
+                game: null,
                 showRaceDescription: false,
                 newItem: {
                     item: {},
@@ -571,114 +613,147 @@
                 showPerksBlock: true,
                 countToDelete: 1,
                 itemToDelete: {},
-                deleteDialog: false
+                deleteDialog: false,
             };
         },
         computed: {
+            isGameMaster() {
+                if (this.game) {
+                    return this.game.master.id === firebase.auth().currentUser.uid;
+                } else return false;
+            },
             result_stats() {
                 let p = this.player;
-                let MeleeDamageSum = p.items.filter(i => i.weared).reduce((sum, current) => {
-                    return sum + Math.round(+current.item.MeleeDamage * +current.item.quality.modificator);
-                }, 0);
-                let MagicDamageSum = p.items.filter(i => i.weared).reduce((sum, current) => {
-                    return sum + Math.round(+current.item.MagicDamage * +current.item.quality.modificator);
-                }, 0);
-                let RangeDamageSum = p.items.filter(i => i.weared).reduce((sum, current) => {
-                    return sum + Math.round(+current.item.RangeDamage * +current.item.quality.modificator);
-                }, 0);
-                let PhysicDefSum = p.items.filter(i => i.weared).reduce((sum, current) => {
-                    return sum + Math.round(+current.item.PhysicDef * +current.item.quality.modificator);
-                }, 0);
-                let MagicDefSum = p.items.filter(i => i.weared).reduce((sum, current) => {
-                    return sum + Math.round(+current.item.MagicDef * +current.item.quality.modificator);
-                }, 0);
-                let ElementsDefSum = p.items.filter(i => i.weared).reduce((sum, current) => {
-                    return sum + Math.round(+current.item.ElementsDef * +current.item.quality.modificator);
-                }, 0);
-                let StrengthSum = p.items.filter(i => i.weared).reduce((sum, current) => {
-                    return sum + Math.round(+current.item.Strength * +current.item.quality.modificator);
-                }, 0);
-                let PerceptionSum = p.items.filter(i => i.weared).reduce((sum, current) => {
-                    return sum + Math.round(+current.item.Perception * +current.item.quality.modificator);
-                }, 0);
-                let EnduranceSum = p.items.filter(i => i.weared).reduce((sum, current) => {
-                    return sum + Math.round(+current.item.Endurance * +current.item.quality.modificator);
-                }, 0);
-                let CharismaSum = p.items.filter(i => i.weared).reduce((sum, current) => {
-                    return sum + Math.round(+current.item.Charisma * +current.item.quality.modificator);
-                }, 0);
-                let IntelligenceSum = p.items.filter(i => i.weared).reduce((sum, current) => {
-                    return sum + Math.round(+current.item.Intelligence * +current.item.quality.modificator);
-                }, 0);
-                let AgilitySum = p.items.filter(i => i.weared).reduce((sum, current) => {
-                    return sum + Math.round(+current.item.Agility * +current.item.quality.modificator);
-                }, 0);
-                let LuckSum = p.items.filter(i => i.weared).reduce((sum, current) => {
-                    return sum + Math.round(+current.item.Luck * +current.item.quality.modificator);
-                }, 0);
+                if (p != null && p.items != null) {
+                    let MeleeDamageSum = p.items.filter(i => i.weared).reduce((sum, current) => {
+                        return sum + Math.round(+current.MeleeDamage * +current.quality.modificator);
+                    }, 0);
+                    let MagicDamageSum = p.items.filter(i => i.weared).reduce((sum, current) => {
+                        return sum + Math.round(+current.MagicDamage * +current.quality.modificator);
+                    }, 0);
+                    let RangeDamageSum = p.items.filter(i => i.weared).reduce((sum, current) => {
+                        return sum + Math.round(+current.RangeDamage * +current.quality.modificator);
+                    }, 0);
+                    let PhysicDefSum = p.items.filter(i => i.weared).reduce((sum, current) => {
+                        return sum + Math.round(+current.PhysicDef * +current.quality.modificator);
+                    }, 0);
+                    let MagicDefSum = p.items.filter(i => i.weared).reduce((sum, current) => {
+                        return sum + Math.round(+current.MagicDef * +current.quality.modificator);
+                    }, 0);
+                    let ElementsDefSum = p.items.filter(i => i.weared).reduce((sum, current) => {
+                        return sum + Math.round(+current.ElementsDef * +current.quality.modificator);
+                    }, 0);
+                    let StrengthSum = p.items.filter(i => i.weared).reduce((sum, current) => {
+                        return sum + Math.round(+current.Strength * +current.quality.modificator);
+                    }, 0);
+                    let PerceptionSum = p.items.filter(i => i.weared).reduce((sum, current) => {
+                        return sum + Math.round(+current.Perception * +current.quality.modificator);
+                    }, 0);
+                    let EnduranceSum = p.items.filter(i => i.weared).reduce((sum, current) => {
+                        return sum + Math.round(+current.Endurance * +current.quality.modificator);
+                    }, 0);
+                    let CharismaSum = p.items.filter(i => i.weared).reduce((sum, current) => {
+                        return sum + Math.round(+current.Charisma * +current.quality.modificator);
+                    }, 0);
+                    let IntelligenceSum = p.items.filter(i => i.weared).reduce((sum, current) => {
+                        return sum + Math.round(+current.Intelligence * +current.quality.modificator);
+                    }, 0);
+                    let AgilitySum = p.items.filter(i => i.weared).reduce((sum, current) => {
+                        return sum + Math.round(+current.Agility * +current.quality.modificator);
+                    }, 0);
+                    let LuckSum = p.items.filter(i => i.weared).reduce((sum, current) => {
+                        return sum + Math.round(+current.Luck * +current.quality.modificator);
+                    }, 0);
 
-                let MeleeDamagePerksSum = this.playerPerks.reduce((sum, current) => {
-                    return sum + +current.MeleeDamage;
-                }, 0);
-                let MagicDamagePerksSum = this.playerPerks.reduce((sum, current) => {
-                    return sum + +current.MagicDamage;
-                }, 0);
-                let RangeDamagePerksSum = this.playerPerks.reduce((sum, current) => {
-                    return sum + +current.RangeDamage;
-                }, 0);
-                let PhysicDefPerksSum = this.playerPerks.reduce((sum, current) => {
-                    return sum + +current.PhysicDef;
-                }, 0);
-                let MagicDefPerksSum = this.playerPerks.reduce((sum, current) => {
-                    return sum + +current.MagicDef;
-                }, 0);
-                let ElementsDefPerksSum = this.playerPerks.reduce((sum, current) => {
-                    return sum + +current.ElementsDef;
-                }, 0);
-                let StrengthPerksSum = this.playerPerks.reduce((sum, current) => {
-                    return sum + +current.Strength;
-                }, 0);
-                let PerceptionPerksSum = this.playerPerks.reduce((sum, current) => {
-                    return sum + +current.Perception;
-                }, 0);
-                let EndurancePerksSum = this.playerPerks.reduce((sum, current) => {
-                    return sum + +current.Endurance;
-                }, 0);
-                let CharismaPerksSum = this.playerPerks.reduce((sum, current) => {
-                    return sum + +current.Charisma;
-                }, 0);
-                let IntelligencePerksSum = this.playerPerks.reduce((sum, current) => {
-                    return sum + +current.Intelligence;
-                }, 0);
-                let AgilityPerksSum = this.playerPerks.reduce((sum, current) => {
-                    return sum + +current.Agility;
-                }, 0);
-                let LuckPerksSum = this.playerPerks.reduce((sum, current) => {
-                    return sum + +current.Luck;
-                }, 0);
-                return new Object({
-                    MeleeDamage: p.stats.MeleeDamage + +p.race.MeleeDamage + +MeleeDamageSum + +MeleeDamagePerksSum,
-                    MagicDamage: p.stats.MagicDamage + +p.race.MagicDamage + +MagicDamageSum + +MagicDamagePerksSum,
-                    RangeDamage: p.stats.RangeDamage + +p.race.RangeDamage + +RangeDamageSum + +RangeDamagePerksSum,
-                    PhysicDef: p.stats.PhysicDef + +p.race.PhysicDef + +PhysicDefSum + +PhysicDefPerksSum,
-                    MagicDef: p.stats.MagicDef + +p.race.MagicDef + +MagicDefSum + +MagicDefPerksSum,
-                    ElementsDef: p.stats.ElementsDef + +p.race.ElementsDef + +ElementsDefSum + +ElementsDefPerksSum,
-                    Strength: p.stats.Strength + +p.race.Strength + +StrengthSum + +StrengthPerksSum,
-                    Perception: p.stats.Perception + +p.race.Perception + +PerceptionSum + +PerceptionPerksSum,
-                    Endurance: p.stats.Endurance + +p.race.Endurance + +EnduranceSum + +EndurancePerksSum,
-                    Charisma: p.stats.Charisma + +p.race.Charisma + +CharismaSum + +CharismaPerksSum,
-                    Intelligence: p.stats.Intelligence + +p.race.Intelligence + +IntelligenceSum + +IntelligencePerksSum,
-                    Agility: p.stats.Agility + +p.race.Agility + +AgilitySum + +AgilityPerksSum,
-                    Luck: p.stats.Luck + +p.race.Luck + +LuckSum + +LuckPerksSum,
-                });
+                    let MeleeDamagePerksSum = this.playerPerks.reduce((sum, current) => {
+                        return sum + +current.MeleeDamage;
+                    }, 0);
+                    let MagicDamagePerksSum = this.playerPerks.reduce((sum, current) => {
+                        return sum + +current.MagicDamage;
+                    }, 0);
+                    let RangeDamagePerksSum = this.playerPerks.reduce((sum, current) => {
+                        return sum + +current.RangeDamage;
+                    }, 0);
+                    let PhysicDefPerksSum = this.playerPerks.reduce((sum, current) => {
+                        return sum + +current.PhysicDef;
+                    }, 0);
+                    let MagicDefPerksSum = this.playerPerks.reduce((sum, current) => {
+                        return sum + +current.MagicDef;
+                    }, 0);
+                    let ElementsDefPerksSum = this.playerPerks.reduce((sum, current) => {
+                        return sum + +current.ElementsDef;
+                    }, 0);
+                    let StrengthPerksSum = this.playerPerks.reduce((sum, current) => {
+                        return sum + +current.Strength;
+                    }, 0);
+                    let PerceptionPerksSum = this.playerPerks.reduce((sum, current) => {
+                        return sum + +current.Perception;
+                    }, 0);
+                    let EndurancePerksSum = this.playerPerks.reduce((sum, current) => {
+                        return sum + +current.Endurance;
+                    }, 0);
+                    let CharismaPerksSum = this.playerPerks.reduce((sum, current) => {
+                        return sum + +current.Charisma;
+                    }, 0);
+                    let IntelligencePerksSum = this.playerPerks.reduce((sum, current) => {
+                        return sum + +current.Intelligence;
+                    }, 0);
+                    let AgilityPerksSum = this.playerPerks.reduce((sum, current) => {
+                        return sum + +current.Agility;
+                    }, 0);
+                    let LuckPerksSum = this.playerPerks.reduce((sum, current) => {
+                        return sum + +current.Luck;
+                    }, 0);
+                    let res = new Object({
+                        MeleeDamage: p.stats.MeleeDamage + +p.race.MeleeDamage + +MeleeDamageSum + +MeleeDamagePerksSum,
+                        MagicDamage: p.stats.MagicDamage + +p.race.MagicDamage + +MagicDamageSum + +MagicDamagePerksSum,
+                        RangeDamage: p.stats.RangeDamage + +p.race.RangeDamage + +RangeDamageSum + +RangeDamagePerksSum,
+                        PhysicDef: p.stats.PhysicDef + +p.race.PhysicDef + +PhysicDefSum + +PhysicDefPerksSum,
+                        MagicDef: p.stats.MagicDef + +p.race.MagicDef + +MagicDefSum + +MagicDefPerksSum,
+                        ElementsDef: p.stats.ElementsDef + +p.race.ElementsDef + +ElementsDefSum + +ElementsDefPerksSum,
+                        Strength: p.stats.Strength + +p.race.Strength + +StrengthSum + +StrengthPerksSum,
+                        Charisma: p.stats.Charisma + +p.race.Charisma + +CharismaSum + +CharismaPerksSum,
+                        Intelligence: p.stats.Intelligence + +p.race.Intelligence + +IntelligenceSum + +IntelligencePerksSum,
+                        Agility: p.stats.Agility + +p.race.Agility + +AgilitySum + +AgilityPerksSum,
+                        Luck: p.stats.Luck + +p.race.Luck + +LuckSum + +LuckPerksSum,
+                    });
+                    let final = Object({
+                        MeleeDamage: Math.round(+res.MeleeDamage),
+                        RangeDamage: Math.round(+res.RangeDamage),
+                        PhysicDef: Math.round(+res.PhysicDef + res.Endurance / 2 + res.Agility / 2),
+                        MagicDef: Math.round(+res.MagicDef + res.Agility / 4 + res.Intelligence / 2),
+                        ElementsDef: Math.round(+res.ElementsDef + res.Endurance / 2 + res.Intelligence / 4),
+                        Strength: Math.round(+res.Strength),
+                        Perception: Math.round(+res.Perception),
+                        Endurance: Math.round(+res.Endurance),
+                        Charisma: Math.round(+res.Charisma),
+                        Intelligence: Math.round(+res.Intelligence),
+                        Agility: Math.round(+res.Agility),
+                        Luck: Math.round(+res.Luck),
+                        MeleeWeapon: Math.round((+res.Agility + res.Strength) / 2),
+                        Unarmed: Math.round((+res.Agility + res.Strength) / 2),
+                        RangeWeapon: Math.round((+res.Agility * 3 + res.Strength / 2) / 2),
+                        Magic: Math.round(+res.Intelligence / 3 + res.Perception / 6),
+                        Throwing: Math.round(+res.Agility),
+                        FirstAid: Math.round((+res.Perception + res.Intelligence) / 2),
+                        Doctor: Math.round(5 + (+res.Perception / 3 + res.Intelligence)),
+                        Sneak: Math.round(5 + +res.Agility / 3 * 2),
+                        Lockpick: Math.round(10 + (+res.Perception + res.Agility) / 2),
+                        Steal: Math.round(+res.Agility / 3 * 2),
+                        Speech: Math.round(+res.Charisma / 100 * 87),
+                        Barter: Math.round(+res.Charisma / 100 * 90),
+                        Gambling: Math.round(res.Luck),
+                    });
+                    return final;
+                } else return {};
             },
             max_health() {
-              let res = this.result_stats;
-                return Math.round(15 + 2 * +res.Endurance + +res.Strength + 2*this.player.level +res.Endurance/2);
+                let res = this.result_stats;
+                return Math.round(15 + 2 * +res.Endurance + +res.Strength + 2 * this.player.level + res.Endurance / 2);
             },
             max_action() {
                 let res = this.result_stats;
-                return Math.round(5 + +res.Agility /4);
+                return Math.round(5 + +res.Agility / 4);
             },
             result_xp() {
                 let p = this.player;
@@ -688,7 +763,7 @@
                 let perks = this.player.perks;
                 if (perks && perks.length > 0) {
                     let resPerks = [];
-                    this.gameData.perks.forEach(p => {
+                    this.rules.perks.forEach(p => {
                         if (this.perkAcquired(p)) {
                             resPerks.push(p);
                         }
@@ -698,7 +773,7 @@
             },
             sortedPerks() {
                 // eslint-disable-next-line vue/no-side-effects-in-computed-properties
-                return this.gameData.perks ? this.gameData.perks.sort((x, y) => {
+                return this.rules.perks ? this.rules.perks.sort((x, y) => {
                     return (this.perkAcquired(x) === this.perkAcquired(y)) ? 0 : this.perkAcquired(x) ? -1 : 1;
                 }) : [];
             },
@@ -712,10 +787,13 @@
             wear(item) {
                 if (item.weared) {
                     item.weared = false;
-                }
-                else {
-                    if(item.type == "Оружие") {
-
+                } else {
+                    if (item.uses < 0) {
+                        item.weared = true;
+                        this.profileRef.update({
+                            items: this.player.items
+                        }).then(() => {
+                        });
                     }
                 }
             },
@@ -861,9 +939,11 @@
                     _this.isEdit = false;
                 });
             },
-            updateStats() {
+            updateStats(stat) {
                 this.isEdit = true;
                 let _this = this;
+                this.player.stats[stat] ++;
+                this.player.points -= 25;
                 this.profileRef.update({
                     stats: this.player.stats,
                     points: this.player.points
@@ -875,21 +955,40 @@
                 if (this.player.exp >= this.result_xp) {
                     this.player.level++;
                     this.player.points += 50;
+                    this.player.health = this.max_health;
                     this.saveProfile();
-                } else {
-                    return;
                 }
             }
         },
         created() {
-            let profileID = this.$route.params.id;
+            let profileID = this.profileId ? this.profileId : this.$route.params.id;
+
             if (profileID) {
-                this.profileRef = firebase.firestore().collection('playerProfiles').doc(profileID);
-                this.profileRef.onSnapshot((doc) => {
-                    this.player = doc.data() || {};
-                });
-                firebase.firestore().collection('gamerules').doc('main').onSnapshot((doc) => {
-                    this.gameData = doc.data() || {};
+                this.profileRef = firebase.firestore().collection('playerProfiles').doc(profileID.toString());
+                if (this.profileRef) {
+                    this.profileRef.onSnapshot((doc) => {
+                        this.player = doc.data() || {};
+                    });
+                    this.profileRef.get().then((doc) => {
+                        return doc.data() || {};
+                    }).then((data) => {
+                        firebase.firestore().collection('games').doc(data.gameId).onSnapshot((doc) => {
+                            this.game = doc.data() || {};
+                        });
+                    });
+                    firebase.firestore().collection('gamerules').doc('main').onSnapshot((doc) => {
+                        this.rules = doc.data() || {};
+                    });
+                }
+            }
+        },
+        updated() {
+            if (this.player) {
+                if (this.player.health > this.max_health) {
+                    this.player.health = this.max_health;
+                }
+                this.profileRef.update({
+                    health: this.player.health,
                 });
             }
         }

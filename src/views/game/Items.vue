@@ -55,6 +55,9 @@
                                 <v-row>
                                     <v-col cols="12" class="mb-0 pb-0"><p>Влияние на характеристики</p></v-col>
                                     <v-col cols="12" sm="6" md="4" lg="3">
+                                        <v-text-field v-model="editedItem.heal" label="Хил" type="number"/>
+                                    </v-col>
+                                    <v-col cols="12" sm="6" md="4" lg="3">
                                         <v-text-field v-model="editedItem.Strength" label="Сила" type="number"/>
                                     </v-col>
                                     <v-col cols="12" sm="6" md="4" lg="3">
@@ -136,6 +139,7 @@
                 {text: "Цена", value: "cost"},
                 {text: "Тип предмета", value: "type"},
                 {text: "Кол-во использований", value: "uses"},
+                {text: "Хил", value: "heal"},
                 {text: "Радиус", value: "range"},
                 {text: "Патроны", value: "ammo"},
                 {text: "Доп. урон (Ближн. оружие)", value: "MeleeDamage"},
@@ -162,6 +166,7 @@
                 type: "",
                 uses: 0,
                 range: 0,
+                heal: 0,
                 ammo: [],
                 MeleeDamage: 0,
                 MagicDamage: 0,
@@ -183,6 +188,7 @@
                 type: "",
                 uses: 0,
                 range: 0,
+                heal: 0,
                 ammo: [],
                 MeleeDamage: 0,
                 MagicDamage: 0,

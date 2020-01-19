@@ -148,6 +148,7 @@
                         modificatorBuy: 1,
                         modificatorSell: 1
                     },
+                    enemies: [],
                     messages: [],
                     name: "Новая партия",
                     players: []

@@ -1,63 +1,75 @@
 <template>
-  <v-container>
-    <v-card>
-            <v-tabs v-model="tab" centered>
-              <v-tab href="#tab-1">
-                <v-icon>mdi-phone</v-icon>Recents
-              </v-tab>
-
-              <v-tab href="#tab-2">
-                <v-icon>mdi-heart</v-icon>Favorites
-              </v-tab>
-
-              <v-tab href="#tab-3">
-                <v-icon left>mdi-account-box</v-icon>Nearby
-              </v-tab>
+    <v-container class="" fluid>
+        <v-card v-if="game && rules && profiles" class="ma-0 red" color="red" tile>
+            <v-tabs v-model="tab"
+                    centered
+                    color="red"
+            >
+                <v-tab
+                        v-for="i in profiles"
+                        :key="i.name"
+                        :href="`#tab-${i.name}`"
+                >
+                    {{ i.name }}
+                </v-tab>
             </v-tabs>
 
             <v-tabs-items v-model="tab">
-              <v-tab-item v-for="i in 3" :key="i" :value="'tab-' + i">
-                <v-card flat>
-                  <player-profile></player-profile>
-                </v-card>
-              </v-tab-item>
+                <v-tab-item
+                        class="justify-center align-center align-content-center"
+                        v-for="i in profiles"
+                        :key="i.name"
+                        :value="`tab-${i.name}`"
+                >
+                    <player-profile :profile-id="i.profile"/>
+                </v-tab-item>
             </v-tabs-items>
-          
-            <v-row>
-              <v-col cols="12" md="6" lg="4">
-                <v-subheader>Случайный предмет</v-subheader>
-              </v-col>
-              <v-col cols="12" md="6" lg="4">
-                <v-subheader>Случайное событие</v-subheader>
-              </v-col>
-              <v-col cols="12" md="6" lg="4">
-                <v-subheader>Случайный враг</v-subheader>
-              </v-col>
-            </v-row>
 
-    </v-card>
-  </v-container>
+
+        </v-card>
+        <v-overlay v-else light absolute opacity="50" dark>
+            <v-progress-circular indeterminate size="150">
+                <v-card-subtitle>Идет загрузка</v-card-subtitle>
+            </v-progress-circular>
+        </v-overlay>
+    </v-container>
 </template>
 
 <script>
-import PlayerProfile from "./GamePlayerProfile.vue";
-export default {
-  name: "game-admin",
-  data() {
-    return {
-      tab: null
+    import PlayerProfile from "./GamePlayerProfile.vue";
+    import * as firebase from "firebase";
+
+    export default {
+        name: "game-admin",
+        data() {
+            return {
+                tab: null,
+                game: {},
+                rules: {},
+            };
+        },
+        computed: {
+            profiles() {
+                return this.game.players || [];
+            }
+        },
+        methods: {},
+        created() {
+            let GameId = this.$route.params.id;
+            if (GameId) {
+                this.gameRef = firebase.firestore().collection('games').doc(GameId);
+                this.gameRef.onSnapshot((doc) => {
+                    this.game = doc.data() || {};
+                });
+                firebase.firestore().collection('gamerules').doc('main').onSnapshot((doc) => {
+                    this.rules = doc.data() || {};
+                });
+            }
+        },
+        components: {
+            PlayerProfile
+        }
     };
-  },
-  methods: {
-    getRules() {
-      this.$store.dispatch("get_rules");
-      return "aaaa";
-    }
-  },
-  components: {
-    PlayerProfile
-  }
-};
 </script>
 
 <style lang="css">

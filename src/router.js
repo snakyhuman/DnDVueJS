@@ -24,7 +24,7 @@ export default new Router({
             component: GamePlayerProfile
         },
         {
-            path: '/admin',
+            path: '/admin/:id',
             name: 'admin',
             component: GameAdmin
         },
