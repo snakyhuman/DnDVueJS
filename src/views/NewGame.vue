@@ -16,7 +16,8 @@
                                 height="250"
                         >
                         </v-img>
-                        <v-progress-linear striped absolute bottom v-show="uploading > 0" height="25" :value="uploading"/>
+                        <v-progress-linear striped absolute bottom v-show="uploading > 0" height="25"
+                                           :value="uploading"/>
                     </v-card>
                     <v-text-field
                             label="Название"
@@ -167,7 +168,7 @@
         },
         methods: {
             imageChanged(e) {
-                var files = e.target.files || e.dataTransfer.files;
+                let files = e.target.files || e.dataTransfer.files;
                 if (!files.length)
                     return;
                 this.image = files[0];
@@ -256,8 +257,14 @@
             }
         },
         created() {
-            // this.newGame.master = firebase.firestore().time "/users/" + this.currentUser;
             let ref = firebase.firestore().doc("/users/" + this.currentUser);
+            if (!ref && firebase.auth().currentUser) {
+                let usr = firebase.auth().currentUser;
+                ref = firebase.firestore().collection('users').doc(usr.uid).add(usr).then((user) => {
+                        ref = user;
+                    }
+                );
+            }
             this.newGame.master = ref;
             this.newGame.eventDate = this.eventDate;
         }

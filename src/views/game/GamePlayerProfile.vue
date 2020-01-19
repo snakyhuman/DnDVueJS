@@ -712,6 +712,8 @@
                         MagicDef: p.stats.MagicDef + +p.race.MagicDef + +MagicDefSum + +MagicDefPerksSum,
                         ElementsDef: p.stats.ElementsDef + +p.race.ElementsDef + +ElementsDefSum + +ElementsDefPerksSum,
                         Strength: p.stats.Strength + +p.race.Strength + +StrengthSum + +StrengthPerksSum,
+                        Perception: p.stats.Perception + +p.race.Perception + +PerceptionSum + +PerceptionPerksSum,
+                        Endurance: p.stats.Endurance + +p.race.Endurance + +EnduranceSum + +EndurancePerksSum,
                         Charisma: p.stats.Charisma + +p.race.Charisma + +CharismaSum + +CharismaPerksSum,
                         Intelligence: p.stats.Intelligence + +p.race.Intelligence + +IntelligenceSum + +IntelligencePerksSum,
                         Agility: p.stats.Agility + +p.race.Agility + +AgilitySum + +AgilityPerksSum,

@@ -35,12 +35,12 @@
                             <v-item>
                                 <v-card
                                         elevation="5"
-                                        class="overflow-hidden elevation-10 d-flex align-center"
+                                        class="overflow-hidden d-flex align-center"
                                         height="250"
-                                        dark
+                                        outlined
                                         @click="newGameDialog = true"
                                 >
-                                    <div class="display-3 text--white flex-grow-1 text-center">Создать игру</div>
+                                    <v-card-subtitle class="display-2 text-uppercase flex-grow-1 text-center">Создать игру</v-card-subtitle>
                                 </v-card>
                             </v-item>
                         </v-col>

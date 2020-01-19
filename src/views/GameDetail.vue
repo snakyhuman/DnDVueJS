@@ -37,9 +37,9 @@
                 </v-col>
             </v-row>
             <v-card-actions>
-                <v-btn :loading="processed" v-if="isMaster" :to="'/admin/' + game_inst.id">Панель мастера</v-btn>
-                <v-btn :loading="processed" v-if="canJoin" @click.stop="join()">Присоединиться</v-btn>
-                <v-btn :loading="processed" v-if="existProfile" :to="'/profile/'+profileId">Персонаж</v-btn>
+                <v-btn text :loading="processed" v-if="isMaster" :to="'/admin/' + game_inst.id">Панель мастера</v-btn>
+                <v-btn text :loading="processed" v-if="canJoin" @click.stop="join()">Присоединиться</v-btn>
+                <v-btn text :loading="processed" v-if="existProfile" :to="'/profile/'+profileId">Персонаж</v-btn>
             </v-card-actions>
         </v-container>
     </v-card>
