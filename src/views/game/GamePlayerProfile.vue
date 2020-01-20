@@ -179,7 +179,7 @@
                             <v-icon left>mdi-bag-personal</v-icon>
                             Инвентарь
                             <v-spacer/>
-                            <v-btn outlined color="green">
+                            <v-btn outlined color="green" v-if="game.trade.trademode">
                                 Магазин
                             </v-btn>
                         </v-card-title>
@@ -378,7 +378,6 @@
                                 </v-row>
                             </v-container>
                         </v-item-group>
-                        <v-dialog v-model="addItemDialog" width="1000"/>
                     </v-card>
                 </v-col>
 

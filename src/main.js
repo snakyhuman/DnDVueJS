@@ -11,15 +11,10 @@ import firebase from 'firebase';
 import 'firebase/firestore';
 Vue.use(Vuetify);
 Vue.config.productionTip = false;
-
-const firebaseAPP = firebase.initializeApp(firebaseConfig);
+firebase.initializeApp(firebaseConfig);
 firebase.firestore().settings({
     cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED
 });
-const db = firebaseAPP.firestore();
-
-Vue.$db = db;
-
 new Vue({
     router,
     store,
@@ -29,7 +24,6 @@ new Vue({
         firebase.auth().onAuthStateChanged(function(user) {
             store.dispatch('stateChanged', user);
         });
-        const db = "";
     },
     mounted() {},
 

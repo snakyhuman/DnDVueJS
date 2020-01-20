@@ -1,5 +1,5 @@
 <template>
-  <v-card dark tile class="py-3 px-6" :loading="processing">
+  <v-card tile class="py-3 px-6" :loading="processing">
     <v-card-title class="justify-center text-center">ВХОД</v-card-title>
     <v-btn  absolute top right icon  @click.stop="closeDialog"><v-icon>mdi-close</v-icon></v-btn>
       <v-row justify="center" align="center">

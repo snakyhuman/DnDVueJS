@@ -3,123 +3,126 @@
         <v-container>
             <v-card-title primary-title class="mb-0 pb-0">Новая игра</v-card-title>
             <v-subheader class="mt-0 pt-0">Зарегистрировать новую партию</v-subheader>
-            <v-row>
-                <v-col cols="12" xs="12" sm="6" lg="6">
-                    <v-card @click="$refs.file.click()">
-                        <input @change="imageChanged" accept="image/png, image/jpeg, image/bmp" type="file" ref="file"
-                               style="visibility: hidden" class="v-btn--absolute"/>
-                        <v-img
-                                :src="imageURL"
-                                class="white--text align-end mb-3"
-                                lazy-src="../assets/imagePlaceholder.jpg"
-                                gradient="to bottom, rgba(0,0,0,.2), rgba(0,0,0,.8)"
-                                height="250"
-                        >
-                        </v-img>
-                        <v-progress-linear striped absolute bottom v-show="uploading > 0" height="25"
-                                           :value="uploading"/>
-                    </v-card>
-                    <v-text-field
-                            label="Название"
-                            v-model="newGame.name"
-                            placeholder="Новая партия"
-                            filled
-                            rounded
-                            clearable
-                    />
-                    <v-row>
-                        <!-- Date picker -->
-                        <v-col cols="12" xs="12" sm="6" lg="6">
-                            <v-dialog
-                                    ref="dateDialog"
-                                    v-model="dateModal"
-                                    :return-value.sync="date"
-                                    persistent
-                                    width="290px"
-                            >
-                                <template v-slot:activator="{ on }">
-                                    <v-text-field
-                                            v-model="date"
-                                            label="Дата мероприятия"
-                                            prepend-icon="mdi-calendar"
-                                            readonly
-                                            v-on="on"
-                                    />
-                                </template>
-                                <v-date-picker v-model="date" scrollable locale="ru-ru">
-                                    <v-spacer/>
-                                    <v-btn text color="primary" @click="dateModal = false">Отмена</v-btn>
-                                    <v-btn text color="primary" @click="$refs.dateDialog.save(date)">OK</v-btn>
-                                </v-date-picker>
-                            </v-dialog>
-                        </v-col>
-
-                        <!-- Time picker -->
-                        <v-col cols="12" xs="12" sm="6" lg="6">
-                            <v-dialog
-                                    ref="timeDialog"
-                                    v-model="timeModal"
-                                    :return-value.sync="time"
-                                    persistent
-                                    width="290px"
-                            >
-                                <template v-slot:activator="{ on }">
-                                    <v-text-field
-                                            v-model="time"
-                                            label="Время мероприятия"
-                                            prepend-icon="mdi-clock-outline"
-                                            readonly
-                                            v-on="on"
-                                    />
-                                </template>
-                                <v-time-picker
-                                        v-if="timeModal"
-                                        v-model="time"
-                                        full-width
-                                        ampm-in-title
-                                        locale="ru-ru"
-                                >
-                                    <v-spacer/>
-                                    <v-btn text color="primary" @click="timeModal = false">Отмена</v-btn>
-                                    <v-btn text color="primary" @click="$refs.timeDialog.save(time)">OK</v-btn>
-                                </v-time-picker>
-                            </v-dialog>
-                        </v-col>
-                    </v-row>
-                </v-col>
-                <v-col cols="12" xs="12" sm="6" lg="6">
-                    <v-textarea
-                            v-model="newGame.description"
-                            auto-grow
-                            filled
-                            rounded
-                            clearable
-                            color="deep-purple"
-                            label="Описание"
-                            rows="1"
-                    />
+            <v-form v-model="valid">
+                <v-row>
                     <v-col cols="12" xs="12" sm="6" lg="6">
-                        <v-switch v-model="newGame.invites" inset label="Только по приглашениям"/>
-                    </v-col>
-                    <v-col cols="12">
-                        <v-subheader class="mb-6 mt-0 pl-0 mx-4">Максимальное количество игроков</v-subheader>
-                        <v-slider
-                                class="mx-1"
-                                v-model="newGame.maxPlayers"
-                                thumb-label="always"
-                                th
-                                max="20"
-                                min="2"
+                        <v-card @click="$refs.file.click()">
+                            <input @change="imageChanged" accept="image/png, image/jpeg, image/bmp" type="file"
+                                   ref="file"
+                                   style="visibility: hidden" class="v-btn--absolute"/>
+                            <v-img
+                                    :src="imageURL"
+                                    class="white--text align-end mb-3"
+                                    lazy-src="../assets/imagePlaceholder.jpg"
+                                    gradient="to bottom, rgba(0,0,0,.2), rgba(0,0,0,.8)"
+                                    height="250"
+                            >
+                            </v-img>
+                            <v-progress-linear striped absolute bottom v-show="uploading > 0" height="25"
+                                               :value="uploading"/>
+                        </v-card>
+                        <v-text-field
+                                label="Название"
+                                v-model="newGame.name"
+                                :rules="mandatoryRule"
+                                placeholder="Новая партия"
+                                filled
+                                rounded
+                                clearable
                         />
-                    </v-col>
-                </v-col>
+                        <v-row>
+                            <!-- Date picker -->
+                            <v-col cols="12" xs="12" sm="6" lg="6">
+                                <v-dialog
+                                        ref="dateDialog"
+                                        v-model="dateModal"
+                                        :return-value.sync="date"
+                                        persistent
+                                        width="290px"
+                                >
+                                    <template v-slot:activator="{ on }">
+                                        <v-text-field
+                                                v-model="date"
+                                                label="Дата мероприятия"
+                                                prepend-icon="mdi-calendar"
+                                                readonly
+                                                v-on="on"
+                                        />
+                                    </template>
+                                    <v-date-picker v-model="date" scrollable locale="ru-ru">
+                                        <v-spacer/>
+                                        <v-btn text color="primary" @click="dateModal = false">Отмена</v-btn>
+                                        <v-btn text color="primary" @click="$refs.dateDialog.save(date)">OK</v-btn>
+                                    </v-date-picker>
+                                </v-dialog>
+                            </v-col>
 
-                <v-spacer/>
-                <v-card-actions>
-                    <v-btn @click="createGame()">Создать партию</v-btn>
-                    <v-btn @click.stop="closeDialog">Отмена</v-btn>
-                </v-card-actions>
-            </v-row>
+                            <!-- Time picker -->
+                            <v-col cols="12" xs="12" sm="6" lg="6">
+                                <v-dialog
+                                        ref="timeDialog"
+                                        v-model="timeModal"
+                                        :return-value.sync="time"
+                                        persistent
+                                        width="290px"
+                                >
+                                    <template v-slot:activator="{ on }">
+                                        <v-text-field
+                                                v-model="time"
+                                                label="Время мероприятия"
+                                                prepend-icon="mdi-clock-outline"
+                                                readonly
+                                                v-on="on"
+                                        />
+                                    </template>
+                                    <v-time-picker
+                                            v-if="timeModal"
+                                            v-model="time"
+                                            full-width
+                                            ampm-in-title
+                                            locale="ru-ru"
+                                    >
+                                        <v-spacer/>
+                                        <v-btn text color="primary" @click="timeModal = false">Отмена</v-btn>
+                                        <v-btn text color="primary" @click="$refs.timeDialog.save(time)">OK</v-btn>
+                                    </v-time-picker>
+                                </v-dialog>
+                            </v-col>
+                        </v-row>
+                    </v-col>
+                    <v-col cols="12" xs="12" sm="6" lg="6">
+                        <v-textarea
+                                v-model="newGame.description"
+                                auto-grow
+                                filled
+                                rounded
+                                clearable
+                                color="deep-purple"
+                                label="Описание"
+                                rows="1"
+                        />
+                        <v-col cols="12" xs="12" sm="6" lg="6">
+                            <v-switch v-model="newGame.invites" inset label="Только по приглашениям"/>
+                        </v-col>
+                        <v-col cols="12">
+                            <v-subheader class="mb-6 mt-0 pl-0 mx-4">Максимальное количество игроков</v-subheader>
+                            <v-slider
+                                    class="mx-1"
+                                    v-model="newGame.maxPlayers"
+                                    thumb-label="always"
+                                    max="20"
+                                    min="2"
+                            />
+                        </v-col>
+                    </v-col>
+
+                    <v-spacer/>
+                    <v-card-actions>
+                        <v-btn text @click="createGame()">Создать партию</v-btn>
+                        <v-btn text @click.stop="closeDialog">Отмена</v-btn>
+                    </v-card-actions>
+                </v-row>
+            </v-form>
             <v-snackbar v-model="alert" top vertical :color="isError ? 'error' : 'success'">
                 {{ alertText }}
                 <v-btn color="pink" text @click="snackbar = false">Close</v-btn>
@@ -144,7 +147,7 @@
                     master: null,
                     maxPlayers: 4,
                     trade: {
-                        trademod: false,
+                        trademode: false,
                         items: [],
                         modificatorBuy: 1,
                         modificatorSell: 1
@@ -154,6 +157,10 @@
                     name: "Новая партия",
                     players: []
                 },
+                mandatoryRule: [
+                    v => !!v || 'Обязательное поле'
+                ],
+                valid: false,
                 alert: false,
                 isError: false,
                 alertText: "",
@@ -179,7 +186,6 @@
             createGame() {
                 this.processing = true;
                 const _this = this;
-                // ref.child('games/'+this.image.name).put(this.image)
                 firebase
                     .firestore()
                     .collection("games/")
@@ -239,7 +245,7 @@
         },
         computed: {
             currentUser() {
-                return this.$store.getters.get_currentUser.uid;
+                return firebase.auth().currentUser;
             },
             eventDate() {
                 let date = new Date(this.date + "T" + this.time);
@@ -257,15 +263,9 @@
             }
         },
         created() {
-            let ref = firebase.firestore().doc("/users/" + this.currentUser);
-            if (!ref && firebase.auth().currentUser) {
-                let usr = firebase.auth().currentUser;
-                ref = firebase.firestore().collection('users').doc(usr.uid).add(usr).then((user) => {
-                        ref = user;
-                    }
-                );
-            }
-            this.newGame.master = ref;
+            firebase.firestore().doc("/users/" + firebase.auth().currentUser.uid).get().then(value => {
+                this.newGame.master = value.ref;
+            });
             this.newGame.eventDate = this.eventDate;
         }
     };

@@ -1,6 +1,6 @@
 <template>
     <v-container>
-        <v-div v-if="game && rules && profiles">
+        <div v-if="game && rules && profiles">
             <v-btn v-show="!navigation" icon absolute left top style="z-index: 10" @click="navigation=true">
                 <v-icon>mdi-menu</v-icon>
             </v-btn>
@@ -63,7 +63,12 @@
 
             <div v-if="activity===1">
                 <v-card tile>
-                    <v-card-title>Магазин</v-card-title>
+                    <v-card-title>Магазин
+                        <v-spacer/>
+                        <v-switch v-model="game.trade.trademode" @change="setTrademode()" inset/>
+                    </v-card-title>
+
+
                 </v-card>
             </div>
 
@@ -72,7 +77,7 @@
                     <v-card-title>Противники</v-card-title>
                 </v-card>
             </div>
-        </v-div>
+        </div>
         <v-overlay v-else light absolute opacity="50" dark>
             <v-progress-circular indeterminate size="150">
                 <v-card-subtitle>Идет загрузка</v-card-subtitle>
@@ -94,7 +99,16 @@
                 rules: {},
                 navigation: true,
                 mini: true,
-                activity: 1
+                activity: 1,
+                gameId: "",
+                trade: {
+                    newItem: {
+                        item: {},
+                        quality: {},
+                        weared: false,
+                        count: 1
+                    },
+                }
             };
         },
         computed: {
@@ -102,11 +116,17 @@
                 return this.game.players || [];
             }
         },
-        methods: {},
+        methods: {
+            setTrademode() {
+                firebase.firestore().collection('games').doc(this.gameId).update({
+                    'trade.trademode': this.game.trade.trademode
+                });
+            }
+        },
         created() {
-            let GameId = this.$route.params.id;
-            if (GameId) {
-                this.gameRef = firebase.firestore().collection('games').doc(GameId);
+            this.gameId = this.$route.params.id;
+            if (this.gameId) {
+                this.gameRef = firebase.firestore().collection('games').doc(this.gameId);
                 this.gameRef.onSnapshot((doc) => {
                     this.game = doc.data() || {};
                 });
