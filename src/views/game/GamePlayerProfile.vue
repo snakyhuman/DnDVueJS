@@ -181,7 +181,7 @@
                             Инвентарь
                             <v-spacer/>
                             <v-btn outlined color="green" v-if="game.trade.trademode" @click="marketDialog = true">
-                                Магазин
+                                 {{game.trade.modificatorSell > 0 ? 'Магазин' : 'Лут'}}
                             </v-btn>
                         </v-card-title>
                         <v-card-subtitle>Золото {{Math.round(this.player.gold * 100) / 100}}
@@ -333,7 +333,10 @@
                                                     </v-icon>
                                                 </v-card-subtitle>
                                                 <v-spacer/>
-                                                <v-btn color="primary"
+                                                <v-btn :disabled="(processedItem.cost *
+                                                    +processedItem.quality.modificator
+                                                    * processedCount * +game.trade.modificatorSell) > player.gold"
+                                                       color="primary"
                                                        text
                                                        @click="buyProcess()">
                                                     Купить
@@ -825,7 +828,7 @@
                         }
                         for (let key in this.player.stats) {
                             if (item[key] != null && +item[key] != 0) {
-                                this.player.stats[key] += +item[key];
+                                this.player.stats[key] += +item[key] * +item.quality.modificator;
                             }
                         }
 
@@ -833,7 +836,7 @@
                         if (item.uses == 0) {
                             if (item.count > 1) {
                                 item.count = +item.count - 1;
-                                item.uses = this.rules.items.filter(x=> x.name === item.name)[0].uses;
+                                item.uses = this.rules.items.filter(x => x.name === item.name)[0].uses;
                             } else {
                                 //delete item
                                 this.player.items.splice(index, 1);
@@ -939,7 +942,7 @@
                 let count = this.processedCount;
                 let array = this.deleteItemFromArray(this.game.trade.items);
                 this.gameRef.update({
-                    'trade.items' : array
+                    'trade.items': array
                 })
                 item.count = count;
                 this.newItem = {
