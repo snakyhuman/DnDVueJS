@@ -1,25 +1,25 @@
 <template>
-    <v-value v-slot:default="{ active, toggle }">
+    <v-item v-slot:default="{ active, toggle }">
         <div :style="'box-shadow: -5px 0px 0px 0px ' +value.quality.color+';'">
             <v-card :color="value.weared ? 'green' : 'white'" tile @click="toggle">
                 <v-card-title>
                     <v-icon left>mdi-cube</v-icon>
                     {{value.name}}
                     <v-spacer/>
-                    <v-chip color="green"
+                    <v-chip :color="value.weared ? 'white' : 'green'"
                             outlined>
                         X{{value.count}}
                     </v-chip>
-                    <v-btn v-if="player" icon @click="$emit('sellItem', value)">
+                    <v-btn v-if="market" icon @click="sellItem()">
                         <v-icon>mdi-currency-usd</v-icon>
                     </v-btn>
-                    <v-btn v-if="player" icon @click="$emit('wear',value)">
+                    <v-btn v-if="player" icon @click="wearItem()">
                         <v-icon :color="value.weared ? 'white' : 'grey'">
                             {{value.weared ? 'mdi-tshirt-crew'
                             :'mdi-tshirt-crew-outline' }}
                         </v-icon>
                     </v-btn>
-                    <v-btn v-if="player" icon color="red" @click="$emit( 'deleteItemClick',value)">
+                    <v-btn v-if="player || master" icon color="red" @click="$emit( 'deleteItem',value)">
                         <v-icon>mdi-delete</v-icon>
                     </v-btn>
                 </v-card-title>
@@ -27,7 +27,7 @@
                 <v-card-subtitle class="pb-0">{{value.type}},
                     {{value.quality.name}}
                     <v-spacer/>
-                    {{Math.round(value.cost * value.quality.modificator * 100) / 100}}
+                    {{Math.round(value.cost * value.quality.modificator * +modificatorSellBuy * 100) / 100}}
                     <v-icon color="#FFD700" right>mdi-coins</v-icon>
                 </v-card-subtitle>
                 <v-card-subtitle v-if="value.uses > 0"
@@ -123,15 +123,25 @@
                 </v-chip-group>
             </v-card>
         </div>
-    </v-value>
+    </v-item>
 </template>
 
 <script>
     export default {
-        name: "value-view",
+        name: "item-view",
         props: {
             value: Object,
-            player: Boolean
+            player: Boolean,
+            master: Boolean,
+            market: Boolean,
+            modificator: Number,
+        },
+        computed: {
+            modificatorSellBuy() {
+                if (this.modificator == null || this.modificator == undefined) {
+                    return 1;
+                } else return +this.modificator;
+            }
         },
         methods: {
             randDarkColor() {
@@ -149,6 +159,15 @@
                 }
                 return rgb;
             },
+            sellItem() {
+                this.$emit('sellItem', this.value);
+            },
+            wearItem() {
+                this.$emit('wear', this.value);
+            }
+        },
+        created() {
+
         }
     };
 </script>

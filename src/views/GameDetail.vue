@@ -72,7 +72,7 @@
                     exp: 0,
                     armorDef: 0,
                     magicDef: 0,
-                    points: 100,
+                    points: 50,
                     gold: 0,
                     stats: {
                         MeleeDamage: 0,

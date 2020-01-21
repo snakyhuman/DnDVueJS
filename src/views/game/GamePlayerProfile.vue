@@ -1,6 +1,6 @@
 <template>
     <v-container>
-        <v-card v-if="player && game && rules" :disabled="player.health<0">
+        <v-card v-if="player && game && rules && rules.perks " :disabled="player.health<0">
             <v-btn :loading="isEdit"
                    block
                    depressed
@@ -128,12 +128,13 @@
                         </v-progress-linear>
                     </v-list-item>
                     <v-list-item>
-                        <v-progress-linear color="green darken-4" value="20" height="25" dark>
+                        <v-progress-linear color="green darken-4" :value="(player.health/max_health) * 100" height="25"
+                                           dark>
                             ЗДОРОВЬЕ {{player.health}}/ {{max_health}}
                         </v-progress-linear>
                     </v-list-item>
                     <v-list-item>
-                        <v-progress-linear color="brown" value="20" height="25" dark>
+                        <v-progress-linear color="brown" :value="(player.action/max_action) * 100" height="25" dark>
                             ДЕЙСТВИЯ: {{player.action}}/{{max_action}}
                         </v-progress-linear>
                     </v-list-item>
@@ -179,7 +180,7 @@
                             <v-icon left>mdi-bag-personal</v-icon>
                             Инвентарь
                             <v-spacer/>
-                            <v-btn outlined color="green" v-if="game.trade.trademode">
+                            <v-btn outlined color="green" v-if="game.trade.trademode" @click="marketDialog = true">
                                 Магазин
                             </v-btn>
                         </v-card-title>
@@ -218,17 +219,17 @@
                                         <v-card>
                                             <v-card-title class="headline grey lighten-2"
                                                           primary-title>
-                                                Выкинуть {{itemToDelete.name}}?
+                                                Выкинуть {{processedItem.name}}?
                                             </v-card-title>
                                             <v-card-text>
 
                                             </v-card-text>
                                             <v-card flat class="px-6">
                                                 <v-subheader class="pl-0">Количество</v-subheader>
-                                                <v-slider v-model="countToDelete"
+                                                <v-slider v-model="processedCount"
                                                           color="red"
                                                           :min="1"
-                                                          :max="itemToDelete.count"
+                                                          :max="processedItem.count"
                                                           thumb-color="red"
                                                           track-color="grey"
                                                           thumb-label="always"/>
@@ -245,135 +246,146 @@
                                         </v-card>
                                     </v-dialog>
 
+                                    <v-dialog scrollable v-model="marketDialog">
+                                        <v-card>
+                                            <v-card-title>
+                                                <v-tabs v-model="marketTabs">
+                                                    <v-tab>Купить</v-tab>
+                                                    <v-tab>Продать</v-tab>
+                                                </v-tabs>
+                                                <v-card-subtitle>Золото {{Math.round(this.player.gold * 100) / 100}}
+                                                    <v-icon color="#FFD700" right>mdi-coins</v-icon>
+                                                </v-card-subtitle>
+                                            </v-card-title>
+                                            <v-divider></v-divider>
+                                            <v-card-text style="height: 800px;">
+                                                <v-btn icon @click="marketDialog = false" absolute right top>
+                                                    <v-icon>mdi-close</v-icon>
+                                                </v-btn>
+
+                                                <v-tabs-items v-model="marketTabs">
+                                                    <v-tab-item>
+                                                        <v-item-group>
+                                                            <v-row>
+                                                                <v-col cols="12" md="6" v-for="item in game.trade.items"
+                                                                       :key="game.trade.items.indexOf(item)">
+                                                                    <item-view market :value="item"
+                                                                               :modificator="+game.trade.modificatorSell"
+                                                                               @sellItem="buyItem($event)"/>
+
+                                                                </v-col>
+                                                            </v-row>
+                                                        </v-item-group>
+                                                    </v-tab-item>
+                                                    <v-tab-item>
+                                                        <v-item-group>
+                                                            <v-row>
+                                                                <v-col cols="12" md="6" v-for="item in player.items"
+                                                                       :key="player.items.indexOf(item)">
+                                                                    <item-view market :value="item"
+                                                                               :modificator="+game.trade.modificatorBuy"
+                                                                               @sellItem="sellItem(item)"/>
+
+                                                                </v-col>
+                                                            </v-row>
+                                                        </v-item-group>
+                                                    </v-tab-item>
+                                                </v-tabs-items>
+                                            </v-card-text>
+                                        </v-card>
+                                    </v-dialog>
+                                    <v-dialog v-if="!!processedItem.quality" v-model="buyDialog" width="500">
+                                        <v-card>
+                                            <v-card-title
+                                                    class="headline grey lighten-2"
+                                                    primary-title>
+                                                Купить {{processedItem.name}}?
+                                            </v-card-title>
+                                            <v-card-text>
+
+                                            </v-card-text>
+                                            <v-card flat class="px-6">
+                                                <v-subheader class="pl-0">Количество
+                                                </v-subheader>
+                                                <v-slider v-model="processedCount"
+                                                          color="red"
+                                                          :min="1"
+                                                          :max="(processedItem.cost
+                                                              * processedItem.count
+                                                              * processedItem.quality.modificator
+                                                              * +game.trade.modificatorSell < player.gold)
+                                                              ? processedItem.count
+                                                              : Math.round(player.gold /(processedItem.cost
+                                                              * processedItem.quality.modificator
+                                                              * game.trade.modificatorSell))"
+                                                          thumb-color="red"
+                                                          track-color="grey"
+                                                          thumb-label="always"/>
+                                            </v-card>
+                                            <v-divider/>
+                                            <v-card-actions>
+                                                <v-card-subtitle>Золото
+                                                    {{Math.round((processedItem.cost * +processedItem.quality.modificator
+                                                    * processedCount * +game.trade.modificatorSell) * 100) / 100}}
+                                                    <v-icon color="#FFD700" right>
+                                                        mdi-coins
+                                                    </v-icon>
+                                                </v-card-subtitle>
+                                                <v-spacer/>
+                                                <v-btn color="primary"
+                                                       text
+                                                       @click="buyProcess()">
+                                                    Купить
+                                                </v-btn>
+                                            </v-card-actions>
+                                        </v-card>
+                                    </v-dialog>
+                                    <v-dialog v-if="!!processedItem.quality" v-model="sellDialog" width="500">
+                                        <v-card>
+                                            <v-card-title
+                                                    class="headline grey lighten-2"
+                                                    primary-title>
+                                                Продать {{processedItem.name}}?
+                                            </v-card-title>
+                                            <v-card-text>
+
+                                            </v-card-text>
+                                            <v-card flat class="px-6">
+                                                <v-subheader class="pl-0">Количество
+                                                </v-subheader>
+                                                <v-slider v-model="processedCount"
+                                                          color="red"
+                                                          :min="1"
+                                                          :max="processedItem.count"
+                                                          thumb-color="red"
+                                                          track-color="grey"
+                                                          thumb-label="always"/>
+                                            </v-card>
+                                            <v-divider/>
+                                            <v-card-actions>
+                                                <v-card-subtitle>Золото
+                                                    {{Math.round(processedItem.cost * +processedItem.quality.modificator
+                                                    * processedCount * 100 * +game.trade.modificatorBuy)
+                                                    / 100}}
+                                                    <v-icon color="#FFD700" right>
+                                                        mdi-coins
+                                                    </v-icon>
+                                                </v-card-subtitle>
+                                                <v-spacer/>
+                                                <v-btn color="primary"
+                                                       text
+                                                       @click="sellProcess()">
+                                                    Продать
+                                                </v-btn>
+                                            </v-card-actions>
+                                        </v-card>
+                                    </v-dialog>
                                     <v-col :v-if="player.items && player.items.length>0"
                                            v-for="item in (player.items || [])"
-                                           :key="item.name"
+                                           :key="player.items.indexOf(item)"
                                            cols="12">
-                                        <v-item v-slot:default="{ active, toggle }">
-                                            <div :style="'box-shadow: -5px 0px 0px 0px ' +item.quality.color+';'">
-                                                <v-card :color="item.weared ? 'green' : 'white'" tile @click="toggle">
-                                                    <v-card-title>
-                                                        <v-icon left>mdi-cube</v-icon>
-                                                        {{item.name}}
-                                                        <v-spacer/>
-                                                        <v-chip color="green"
-                                                                outlined>
-                                                            X{{item.count}}
-                                                        </v-chip>
-                                                        <v-btn icon @click="sellItem(item)">
-                                                            <v-icon>mdi-currency-usd</v-icon>
-                                                        </v-btn>
-                                                        <v-btn icon @click="wear(item)">
-                                                            <v-icon :color="item.weared ? 'white' : 'grey'">
-                                                                {{item.weared ? 'mdi-tshirt-crew'
-                                                                :'mdi-tshirt-crew-outline' }}
-                                                            </v-icon>
-                                                        </v-btn>
-                                                        <v-btn icon color="red" @click="deleteItemClick(item)">
-                                                            <v-icon>mdi-delete</v-icon>
-                                                        </v-btn>
-                                                    </v-card-title>
-
-                                                    <v-card-subtitle class="pb-0">{{item.type}},
-                                                        {{item.quality.name}}
-                                                        <v-spacer/>
-                                                        {{Math.round(item.cost * item.quality.modificator * 100) / 100}}
-                                                        <v-icon color="#FFD700" right>mdi-coins</v-icon>
-                                                    </v-card-subtitle>
-                                                    <v-card-subtitle v-if="item.uses > 0"
-                                                                     class="py-0 my-0">Использований {{item.uses}}
-                                                    </v-card-subtitle>
-                                                    <v-card-subtitle v-if="item.range >0" class="py-0 my-0">
-                                                        Дальность {{item.range}}
-                                                    </v-card-subtitle>
-                                                    <v-chip-group column dark active-class="dark" class="mx-1 px-0">
-                                                        <v-chip :color="randDarkColor()"
-                                                                v-if="item.MeleeDamage > 0">
-                                                            Урон (физич.)
-                                                            <v-avatar right>{{Math.round(+item.MeleeDamage *
-                                                                +item.quality.modificator)}}
-                                                            </v-avatar>
-                                                        </v-chip>
-                                                        <v-chip :color="randDarkColor()"
-                                                                v-if="item.MagicDamage > 0">
-                                                            Урон (магич.)
-                                                            <v-avatar right>{{Math.round(+item.MagicDamage *
-                                                                +item.quality.modificator)}}
-                                                            </v-avatar>
-                                                        </v-chip>
-                                                        <v-chip :color="randDarkColor()"
-                                                                v-if="item.RangeDamage > 0">
-                                                            Урон (дальн.)
-                                                            <v-avatar right>{{Math.round(+item.RangeDamage *
-                                                                +item.quality.modificator)}}
-                                                            </v-avatar>
-                                                        </v-chip>
-                                                        <v-chip :color="randDarkColor()" v-if="item.PhysicDef > 0">
-                                                            Защита (физич.)
-                                                            <v-avatar right>{{Math.round(+item.PhysicDef *
-                                                                +item.quality.modificator)}}
-                                                            </v-avatar>
-                                                        </v-chip>
-                                                        <v-chip :color="randDarkColor()" v-if="item.MagicDef > 0">
-                                                            Защита (магич.)
-                                                            <v-avatar right>{{Math.round(+item.MagicDef *
-                                                                +item.quality.modificator)}}
-                                                            </v-avatar>
-                                                        </v-chip>
-                                                        <v-chip :color="randDarkColor()"
-                                                                v-if="item.ElementsDef > 0">
-                                                            Защита (стихии)
-                                                            <v-avatar right>{{Math.round(+item.ElementsDef *
-                                                                +item.quality.modificator)}}
-                                                            </v-avatar>
-                                                        </v-chip>
-                                                        <v-chip :color="randDarkColor()" v-if="item.Strength > 0">
-                                                            Сила
-                                                            <v-avatar right>{{Math.round(+item.Strength *
-                                                                +item.quality.modificator)}}
-                                                            </v-avatar>
-                                                        </v-chip>
-                                                        <v-chip :color="randDarkColor()"
-                                                                v-if="item.Perception > 0">
-                                                            Восприятие
-                                                            <v-avatar right>{{Math.round(+item.Perception *
-                                                                +item.quality.modificator)}}
-                                                            </v-avatar>
-                                                        </v-chip>
-                                                        <v-chip :color="randDarkColor()" v-if="item.Endurance > 0">
-                                                            Выносливость
-                                                            <v-avatar right>{{Math.round(+item.Endurance *
-                                                                +item.quality.modificator)}}
-                                                            </v-avatar>
-                                                        </v-chip>
-                                                        <v-chip :color="randDarkColor()" v-if="item.Charisma > 0">
-                                                            Харизма
-                                                            <v-avatar right>{{Math.round(+item.Charisma *
-                                                                +item.quality.modificator)}}
-                                                            </v-avatar>
-                                                        </v-chip>
-                                                        <v-chip :color="randDarkColor()"
-                                                                v-if="item.Intelligence > 0">
-                                                            Интеллект
-                                                            <v-avatar right>{{Math.round(+item.Intelligence *
-                                                                +item.quality.modificator)}}
-                                                            </v-avatar>
-                                                        </v-chip>
-                                                        <v-chip :color="randDarkColor()" v-if="item.Agility > 0">
-                                                            Ловкость
-                                                            <v-avatar right>{{Math.round(+item.Agility *
-                                                                +item.quality.modificator)}}
-                                                            </v-avatar>
-                                                        </v-chip>
-                                                        <v-chip :color="randDarkColor()" v-if="item.Luck > 0">Удача
-                                                            <v-avatar right>{{Math.round(+item.Luck *
-                                                                +item.quality.modificator)}}
-                                                            </v-avatar>
-                                                        </v-chip>
-                                                    </v-chip-group>
-                                                </v-card>
-                                            </div>
-                                        </v-item>
+                                        <item-view :value="item" player @wear="wear($event)"
+                                                   @deleteItem="deleteItemClick($event)"/>
                                     </v-col>
                                 </v-row>
                             </v-container>
@@ -498,65 +510,66 @@
 
                                                         <v-chip-group dark active-class="dark" class="mx-1 px-0">
                                                             <v-chip :color="randDarkColor()"
-                                                                    v-if="perk.MeleeDamage > 0">
+                                                                    v-if="perk.MeleeDamage != 0">
                                                                 Урон
                                                                 (физич.)
                                                                 <v-avatar right>{{perk.MeleeDamage}}</v-avatar>
                                                             </v-chip>
                                                             <v-chip :color="randDarkColor()"
-                                                                    v-if="perk.MagicDamage > 0">
+                                                                    v-if="perk.MagicDamage != 0">
                                                                 Урон
                                                                 (магич.)
                                                                 <v-avatar right>{{perk.MagicDamage}}</v-avatar>
                                                             </v-chip>
                                                             <v-chip :color="randDarkColor()"
-                                                                    v-if="perk.RangeDamage > 0">
+                                                                    v-if="perk.RangeDamage != 0">
                                                                 Урон
                                                                 (дальн.)
                                                                 <v-avatar right>{{perk.RangeDamage}}</v-avatar>
                                                             </v-chip>
-                                                            <v-chip :color="randDarkColor()" v-if="perk.PhysicDef > 0">
+                                                            <v-chip :color="randDarkColor()" v-if="perk.PhysicDef != 0">
                                                                 Защита
                                                                 (физич.)
                                                                 <v-avatar right>{{perk.PhysicDef}}</v-avatar>
                                                             </v-chip>
-                                                            <v-chip :color="randDarkColor()" v-if="perk.MagicDef > 0">
+                                                            <v-chip :color="randDarkColor()" v-if="perk.MagicDef != 0">
                                                                 Защита
                                                                 (магич.)
                                                                 <v-avatar right>{{perk.MagicDef}}</v-avatar>
                                                             </v-chip>
                                                             <v-chip :color="randDarkColor()"
-                                                                    v-if="perk.ElementsDef > 0">
+                                                                    v-if="perk.ElementsDef != 0">
                                                                 Защита
                                                                 (стихии)
                                                                 <v-avatar right>{{perk.ElementsDef}}</v-avatar>
                                                             </v-chip>
-                                                            <v-chip :color="randDarkColor()" v-if="perk.Strength > 0">
+                                                            <v-chip :color="randDarkColor()" v-if="perk.Strength != 0">
                                                                 Сила
                                                                 <v-avatar right>{{perk.Strength}}</v-avatar>
                                                             </v-chip>
-                                                            <v-chip :color="randDarkColor()" v-if="perk.Perception > 0">
+                                                            <v-chip :color="randDarkColor()"
+                                                                    v-if="perk.Perception != 0">
                                                                 Восприятие
                                                                 <v-avatar right>{{perk.Perception}}</v-avatar>
                                                             </v-chip>
-                                                            <v-chip :color="randDarkColor()" v-if="perk.Endurance > 0">
+                                                            <v-chip :color="randDarkColor()" v-if="perk.Endurance != 0">
                                                                 Выносливость
                                                                 <v-avatar right>{{perk.Endurance}}</v-avatar>
                                                             </v-chip>
-                                                            <v-chip :color="randDarkColor()" v-if="perk.Charisma > 0">
+                                                            <v-chip :color="randDarkColor()" v-if="perk.Charisma != 0">
                                                                 Харизма
                                                                 <v-avatar right>{{perk.Charisma}}</v-avatar>
                                                             </v-chip>
                                                             <v-chip :color="randDarkColor()"
-                                                                    v-if="perk.Intelligence > 0">
+                                                                    v-if="perk.Intelligence != 0">
                                                                 Интеллект
                                                                 <v-avatar right>{{perk.Intelligence}}</v-avatar>
                                                             </v-chip>
-                                                            <v-chip :color="randDarkColor()" v-if="perk.Agility > 0">
+                                                            <v-chip :color="randDarkColor()" v-if="perk.Agility != 0">
                                                                 Ловкость
                                                                 <v-avatar right>{{perk.Agility}}</v-avatar>
                                                             </v-chip>
-                                                            <v-chip :color="randDarkColor()" v-if="perk.Luck > 0">Удача
+                                                            <v-chip :color="randDarkColor()" v-if="perk.Luck != 0">Удача
                                                                 <v-avatar right>{{perk.Luck}}</v-avatar>
                                                             </v-chip>
                                                         </v-chip-group>
@@ -585,6 +598,7 @@
 </template>
 
 <script>
+    import ItemView from "./ItemView.vue";
     import * as firebase from "firebase";
 
     export default {
@@ -610,9 +624,14 @@
                 giveXpCount: 100,
                 giveMoneyCount: 100,
                 showPerksBlock: true,
-                countToDelete: 1,
-                itemToDelete: {},
+                processedCount: 1,
+                processedItem: {},
                 deleteDialog: false,
+                buyDialog: false,
+                sellDialog: false,
+                marketDialog: false,
+                marketTabs: 0,
+                gameRef: null
             };
         },
         computed: {
@@ -720,6 +739,7 @@
                     });
                     let final = Object({
                         MeleeDamage: Math.round(+res.MeleeDamage),
+                        MagicDamage: Math.round(+res.MagicDamage),
                         RangeDamage: Math.round(+res.RangeDamage),
                         PhysicDef: Math.round(+res.PhysicDef + res.Endurance / 2 + res.Agility / 2),
                         MagicDef: Math.round(+res.MagicDef + res.Agility / 4 + res.Intelligence / 2),
@@ -830,15 +850,85 @@
                     });
                 }
             },
+            addItemtoArray(itm, array) {
+                let item = {};
+                if (itm.item.name && itm.quality.name) {
+                    item = Object.assign({}, itm.item);
+                    item.count = itm.count;
+                    item.weared = itm.weared;
+                    item.quality = itm.quality;
+                    let result = [];
+                    let cnt = 0;
+                    array.forEach(i => {
+                        let a = Object.assign({}, item);
+                        let b = Object.assign({}, i);
+                        a.count = b.count;
+                        if (this.deepEqual(a, b)) {
+                            i.count = +i.count + +item.count;
+                            if (i.count < 1) {
+                                i.count = 1;
+                            }
+                            cnt++;
+                        }
+                        result.push(i);
+                    });
+                    if (cnt === 0) {
+                        result.push(item);
+                    }
+                    return result;
+                } else return array;
+            },
             sellItem(item) {
-                let gold = this.player.gold + item.item.cost * item.quality.modificator;
+                this.processedItem = item;
+                this.sellDialog = true;
+            },
+            sellProcess() {
+                let item = this.processedItem;
+                let count = this.processedCount;
+                this.deleteItem();
+                item.count = count;
+                let itm = Object.assign({}, item);
+                item.item = itm;
+                let newTradeItems = this.addItemtoArray(item, this.game.trade.items);
+                this.gameRef.update({
+                    'trade.items': newTradeItems
+                });
+                let gold = +this.player.gold + +item.item.cost * +item.quality.modificator * +this.game.trade.modificatorBuy * count;
                 this.player.gold = gold;
-                this.deleteItem(item);
                 this.profileRef.update({
                     gold: this.player.gold
                 });
+                this.sellDialog = false;
             },
+            buyItem(item) {
+                this.processedItem = item;
+                this.buyDialog = true;
+            },
+            buyProcess() {
+                let item = this.processedItem;
+                let count = this.processedCount;
+                let array = this.deleteItemFromArray(this.game.trade.items);
+                item.count = count;
+                this.newItem = {
+                    item: item,
+                    quality: item.quality,
+                    weared: false,
+                    count: count
+                };
 
+                let gold = +this.player.gold - (+item.cost * +item.quality.modificator * +this.game.trade.modificatorSell * count);
+                this.player.gold = gold;
+                this.profileRef.update({
+                    gold: this.player.gold
+                });
+
+                this.addItem()
+
+                this.gameRef.update({
+                    'trade.items': array
+                });
+                this.buyDialog = false;
+            },
             deepEqual(a, b) {
                 if (a === b) {
                     return true;
@@ -846,33 +936,41 @@
                 if (a == null || typeof (a) !== 'object' || b == null && typeof (b) !== 'object') {
                     return false;
                 }
-                var equal = true;
-                for (var key in a) {
-                    if (typeof (a) === 'object' && typeof (b) === 'object') {
-                        if (!a[key] == b[key]) {
-                            if (typeof (a) === 'object' && typeof (b) === 'object') {
-                                if (JSON.stringify(a[key]) !== JSON.stringify(b[key])) {
-                                    equal = false;
-                                }
-                            } else equal = false;
+                let equal = true;
+                for (let key in a) {
+                    if (typeof (a[key]) === 'object' && typeof (b[key]) === 'object') {
+                        if (!this.deepEqual(a[key], b[key])) {
+                            equal = false;
                         }
-                    } else if (a !== b) {
+                    } else if (a[key] !== b[key]) {
                         equal = false;
                     }
                 }
                 return equal;
             },
             deleteItemClick(item) {
-                this.itemToDelete = item;
+                this.processedItem = item;
                 this.deleteDialog = true;
             },
+            deleteItemFromArray(array) {
+                if (this.processedItem) {
+                    const index = array.indexOf(this.processedItem);
+
+                    if (this.processedCount == this.processedItem.count) {
+                        array.splice(index, 1);
+                    } else {
+                        array[index].count -= +this.processedCount
+                    }
+                    return array;
+                }
+            },
             deleteItem() {
-                if (this.itemToDelete) {
-                    const index = this.player.items.indexOf(this.itemToDelete);
-                    if (this.countToDelete == this.itemToDelete.count) {
+                if (this.processedItem) {
+                    const index = this.player.items.indexOf(this.processedItem);
+                    if (this.processedCount == this.processedItem.count) {
                         this.player.items.splice(index, 1);
                     } else {
-                        this.player.items[index].count -= +this.countToDelete
+                        this.player.items[index].count -= +this.processedCount
                     }
                     this.profileRef.update({items: this.player.items});
                     this.deleteDialog = false;
@@ -943,7 +1041,7 @@
             updateStats(stat) {
                 this.isEdit = true;
                 let _this = this;
-                this.player.stats[stat] ++;
+                this.player.stats[stat]++;
                 this.player.points -= 25;
                 this.profileRef.update({
                     stats: this.player.stats,
@@ -974,6 +1072,7 @@
                         return doc.data() || {};
                     }).then((data) => {
                         firebase.firestore().collection('games').doc(data.gameId).onSnapshot((doc) => {
+                            this.gameRef = doc.ref;
                             this.game = doc.data() || {};
                         });
                     });
@@ -992,6 +1091,9 @@
                     health: this.player.health,
                 });
             }
+        },
+        components: {
+            ItemView,
         }
     };
 </script>

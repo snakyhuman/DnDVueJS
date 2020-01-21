@@ -1,8 +1,5 @@
 <template>
   <v-app-bar color="white" height="60" app >
-    <v-app-bar-nav-icon color="primary" to="/home">
-      <v-icon>mdi-alpha-n-box</v-icon>
-    </v-app-bar-nav-icon>
     <v-toolbar-title>ST.NIKOLAY</v-toolbar-title>
     <v-spacer/>
     <v-app-bar-nav-icon to="/game" class="mx-1" icon color="success" x-large>
