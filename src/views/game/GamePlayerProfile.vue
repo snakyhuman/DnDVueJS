@@ -325,7 +325,8 @@
                                             <v-divider/>
                                             <v-card-actions>
                                                 <v-card-subtitle>Золото
-                                                    {{Math.round((processedItem.cost * +processedItem.quality.modificator
+                                                    {{Math.round((processedItem.cost *
+                                                    +processedItem.quality.modificator
                                                     * processedCount * +game.trade.modificatorSell) * 100) / 100}}
                                                     <v-icon color="#FFD700" right>
                                                         mdi-coins
@@ -809,14 +810,43 @@
                 if (item.weared) {
                     item.weared = false;
                 } else {
-                    if (item.uses < 0) {
+                    let index = this.player.items.indexOf(item);
+                    if (item.uses < 0 || item.type === 'Аммуниция') {
                         item.weared = true;
                         this.profileRef.update({
                             items: this.player.items
                         }).then(() => {
                         });
                     }
+                    //use
+                    else if (item.uses > 0) {
+                        if (item.heal && item.heal != 0) {
+                            this.player.health += +item.heal;
+                        }
+                        for (let key in this.player.stats) {
+                            if (item[key] != null && +item[key] != 0) {
+                                this.player.stats[key] += +item[key];
+                            }
+                        }
+
+                        item.uses = +item.uses - 1;
+                        if (item.uses == 0) {
+                            if (item.count > 1) {
+                                item.count = +item.count - 1;
+                                item.uses = this.rules.items.filter(x=> x.name === item.name)[0].uses;
+                            } else {
+                                //delete item
+                                this.player.items.splice(index, 1);
+                            }
+                        }
+
+                    }
                 }
+                this.profileRef.update({
+                    items: this.player.items,
+                    stats: this.player.stats
+                }).then(() => {
+                });
             },
             addItem() {
                 let item = this.newItem;
@@ -908,6 +938,9 @@
                 let item = this.processedItem;
                 let count = this.processedCount;
                 let array = this.deleteItemFromArray(this.game.trade.items);
+                this.gameRef.update({
+                    'trade.items' : array
+                })
                 item.count = count;
                 this.newItem = {
                     item: item,
@@ -921,12 +954,7 @@
                 this.profileRef.update({
                     gold: this.player.gold
                 });
-
                 this.addItem()
-
-                this.gameRef.update({
-                    'trade.items': array
-                });
                 this.buyDialog = false;
             },
             deepEqual(a, b) {
@@ -1087,8 +1115,12 @@
                 if (this.player.health > this.max_health) {
                     this.player.health = this.max_health;
                 }
+                if (this.player.action > this.max_action) {
+                    this.player.action = this.max_action;
+                }
                 this.profileRef.update({
                     health: this.player.health,
+                    action: this.player.action
                 });
             }
         },
